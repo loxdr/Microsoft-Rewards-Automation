@@ -40,7 +40,16 @@ class Microsoft_Rewards_Automation():
                     exit()
                 self.account_1_email = data['Account-1']['Email-1']
                 self.account_1_pass = data['Account-1']['Password-1']
-                print("User is", self.account_1_email, "Password is", self.account_1_pass)                    
+                self.account_2_email = data['Account-2']['Email-2']
+                self.account_2_pass = data['Account-2']['Password-2']
+                self.account_3_email = data['Account-3']['Email-3']
+                self.account_3_pass = data['Account-3']['Password-3']
+                self.account_4_email = data['Account-4']['Email-4']
+                self.account_4_pass = data['Account-4']['Password-4']
+                self.account_5_email = data['Account-5']['Email-5']
+                self.account_5_pass = data['Account-5']['Password-5']
+
+                print(self.account_5_pass)
         
 MSRA = Microsoft_Rewards_Automation()
 MSRA.data_Management()
