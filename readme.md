@@ -7,12 +7,14 @@ points for bing rewards
 
 - Undetectable as it spoofs useragents and performs random searches
 - Headless lightweight program powered by python and selenium
+- Optimised for maximum efficiency when using 5 accounts
 
 ## Features
 
 - Perform daily required searches ( PC )
 - Perform daily required searches ( Mobile )
 - Perform daily extra searches ( Edge )
+- Run 5 accounts to earn 5x the points
 - Generate random searches from google's Google Trends API
 - Complete daily puzzles, tasks and extras
 - Open source <3
@@ -22,8 +24,11 @@ points for bing rewards
 > this project matures and gets updated 
 
 ## Todo
-- Quite a bit ...
-- will keep updated
+
+- Detailed error logging to file, discord webhook or email
+- Status updates Daily/Weekly/Bi-Weekly/Monthly of points via file, Discord webhook or email
+- Add support for more than 5 accounts
+- Add support for less than 5 accounts
 
 
 ## License
