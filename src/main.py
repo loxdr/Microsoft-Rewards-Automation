@@ -1,4 +1,4 @@
-from _typeshed import Self
+from os import chmod
 from os.path import isfile
 from sys import exit, platform
 from json import load
@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import threading
 
 class chrome_Instances():
     def __init__(self):       
@@ -44,7 +45,7 @@ class chrome_Instances():
     
     def action_wait_to_load(self, xpath):
         element = WebDriverWait(self.browser, 20).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-        
+
 class Microsoft_Rewards_Automation():
     def __init__(self):
         self.data_Management()
@@ -90,5 +91,22 @@ class Microsoft_Rewards_Automation():
                 self.account_4_pass = data['Account-4']['Password-4']
                 self.account_5_email = data['Account-5']['Email-5']
                 self.account_5_pass = data['Account-5']['Password-5']
+
+    def chrome_Ctrl(self):
+        chrome_ac1_1 = []
+        chrome_ac1_2 = []
+        chrome_ac2_1 = []
+        chrome_ac2_2 = []
+        chrome_ac3_1 = []
+        chrome_ac3_2 = []
+        chrome_ac4_1 = []
+        chrome_ac4_2 = []
+        chrome_ac5_1 = []
+        chrome_ac5_2 = []
+
+        for i in range(5):
+            chrome_ac1_1.append(chrome_Instances()) 
         
+
 MSRA = Microsoft_Rewards_Automation()
+MSRA.chrome_Ctrl()
