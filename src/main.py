@@ -103,7 +103,7 @@ class Microsoft_Rewards_Automation():
         chrome_ac4_2 = []
         chrome_ac5_1 = []
         chrome_ac5_2 = []
-
+        
         for i in range(5):
             chrome_ac1_1.append(chrome_Instances()) 
         
