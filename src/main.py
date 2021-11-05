@@ -1,10 +1,53 @@
+from _typeshed import Self
 from os.path import isfile
 from sys import exit, platform
 from json import load
-from time import sleep
+from selenium import webdriver
+#from selenium.webdriver.chrome.options import Options <-- Future headless support
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-class Microsoft_Rewards_Automation():
+class chrome_Instances():
     def __init__(self):       
+        self.platform_Checker()
+        self.chrome_Init()
+
+    def platform_Checker(self):
+        self.platform = platform
+        if self.platform == "linux" or self.platform == "linux2":
+            self.os = "Linux"
+        if self.platform == "darwin":
+            self.os = "Mac"
+        if self.platform == "win32":
+            self.os = "Windows"
+    
+    def chrome_Init(self):
+        if self.os == 'Windows':
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe")
+        if self.os == 'Mac':
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver")
+        if self.os == 'Linux':
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver-linux")
+
+    def action_get(self, url):
+        self.browser.get(url)
+    
+    def action_click(self, xpath):
+        temp = self.browser.find_element_by_xpath(xpath=xpath)
+        temp.click()
+    
+    def action_key(self, xpath, keys):
+        temp = self.browser.find_element_by_xpath(xpath=xpath)
+        temp.send_keys(keys)
+    
+    def action_wait_to_load(self, xpath):
+        element = WebDriverWait(self.browser, 20).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        
+class Microsoft_Rewards_Automation():
+    def __init__(self):
+        self.data_Management()
         self.platform_Checker()
 
     def platform_Checker(self):
@@ -15,7 +58,6 @@ class Microsoft_Rewards_Automation():
             self.os = "Mac"
         if self.platform == "win32":
             self.os = "Windows"
-        return self.os
 
     def data_Management(self):
         if isfile('src/Support-Files/data.json') != True:
@@ -48,8 +90,5 @@ class Microsoft_Rewards_Automation():
                 self.account_4_pass = data['Account-4']['Password-4']
                 self.account_5_email = data['Account-5']['Email-5']
                 self.account_5_pass = data['Account-5']['Password-5']
-
-                print(self.account_5_pass)
         
 MSRA = Microsoft_Rewards_Automation()
-MSRA.data_Management()
