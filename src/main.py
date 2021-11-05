@@ -92,21 +92,20 @@ class Microsoft_Rewards_Automation():
                 self.account_5_email = data['Account-5']['Email-5']
                 self.account_5_pass = data['Account-5']['Password-5']
 
-    def chrome_Ctrl(self):
-        chrome_ac1_1 = []
-        chrome_ac1_2 = []
-        chrome_ac2_1 = []
-        chrome_ac2_2 = []
-        chrome_ac3_1 = []
-        chrome_ac3_2 = []
-        chrome_ac4_1 = []
-        chrome_ac4_2 = []
-        chrome_ac5_1 = []
-        chrome_ac5_2 = []
-        
-        for i in range(5):
-            chrome_ac1_1.append(chrome_Instances()) 
-        
+    def chrome_Rules(self, username, password, searches, client):
+        #controlls the 1 instance of chrome
+        pass
+
+    def chrome_Thread_Controller(self):
+        #controlls the 5 threads inside 
+        pass
+
+    def chrome_Main(self):
+        chrome_Threader1 = threading.Thread(target=self.chrome_Thread_Controller)
+        chrome_Threader2 = threading.Thread(target=self.chrome_Thread_Controller)
+        chrome_Threader3 = threading.Thread(target=self.chrome_Thread_Controller)
+        chrome_Threader4 = threading.Thread(target=self.chrome_Thread_Controller)
+        chrome_Threader5 = threading.Thread(target=self.chrome_Thread_Controller)
 
 MSRA = Microsoft_Rewards_Automation()
 MSRA.chrome_Ctrl()
