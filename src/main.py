@@ -5,6 +5,7 @@ from os.path import isfile
 from random import randint
 from sys import exit, platform
 from time import sleep
+
 from requests import get
 from requests.exceptions import RequestException
 from selenium import webdriver
