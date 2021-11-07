@@ -162,7 +162,7 @@ class Microsoft_Rewards_Automation():
 
     def main(self):
         with ProcessPoolExecutor() as executer:
-
+            
             pass
         self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,1))
         self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,2))
