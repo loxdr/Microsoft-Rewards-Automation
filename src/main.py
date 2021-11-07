@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import threading
+from threading import Thread
 
 class chrome_Instances():
     def __init__(self):       
@@ -101,11 +101,11 @@ class Microsoft_Rewards_Automation():
         pass
 
     def chrome_Main(self):
-        chrome_Threader1 = threading.Thread(target=self.chrome_Thread_Controller)
-        chrome_Threader2 = threading.Thread(target=self.chrome_Thread_Controller)
-        chrome_Threader3 = threading.Thread(target=self.chrome_Thread_Controller)
-        chrome_Threader4 = threading.Thread(target=self.chrome_Thread_Controller)
-        chrome_Threader5 = threading.Thread(target=self.chrome_Thread_Controller)
+        Thread(target=self.chrome_Thread_Controller).start()
+        Thread(target=self.chrome_Thread_Controller).start()
+        Thread(target=self.chrome_Thread_Controller).start()
+        Thread(target=self.chrome_Thread_Controller).start()
+        Thread(target=self.chrome_Thread_Controller).start()
 
 MSRA = Microsoft_Rewards_Automation()
 MSRA.chrome_Ctrl()
