@@ -1,4 +1,5 @@
 from concurrent.futures.process import ProcessPoolExecutor
+from multiprocessing import Process
 from os.path import isfile
 from sys import exit, platform
 from json import load, loads
@@ -32,6 +33,9 @@ class chrome_Instances():
     def chrome_Init(self):
         options = webdriver.ChromeOptions()
         #options.add_argument('--headless')
+        options.add_argument("--disable-logging")
+        options.add_argument("--disable-crash-reporter")
+        options.add_argument("--log-level=3")
         if self.os == 'Windows':
             self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe", options=options)
         if self.os == 'Mac':
@@ -57,7 +61,6 @@ class chrome_Instances():
     def action_wait_to_load(self, xpath):
         element = WebDriverWait(self.browser, 20).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
-
 class Microsoft_Rewards_Automation():
     def __init__(self):
         # Variables
@@ -66,7 +69,7 @@ class Microsoft_Rewards_Automation():
         self.a_3 = []
         self.a_4 = []
         self.a_5 = []
-        self.accounts = [self.a_1, self.a_2] # , self.a_3, self.a_4, self.a_5
+        self.accounts = [self.a_1, self.a_2, self.a_3, self.a_4, self.a_5]
         self.accounts_Using = 5
         self.search_Terms = []
         
@@ -115,6 +118,8 @@ class Microsoft_Rewards_Automation():
                 self.account_4_pass = data['Account-4']['Password-4']
                 self.account_5_email = data['Account-5']['Email-5']
                 self.account_5_pass = data['Account-5']['Password-5']
+                self.account_Email_List = [self.account_1_email,self.account_2_email,self.account_3_email,self.account_4_email,self.account_5_email]
+                self.account_Password_List = [self.account_1_pass,self.account_2_pass,self.account_3_pass,self.account_4_pass, self.account_5_pass]
 
     def search_Term_Generation(self):
         dates = []
@@ -130,8 +135,8 @@ class Microsoft_Rewards_Automation():
                     self.search_Terms.append(topic['title']['query'].lower())
                     for related_topic in topic['relatedQueries']:
                         self.search_Terms.append(related_topic['query'].lower())
+                        print('generating terms')
                 sleep(randint(1, 3))
-                print("Starting")
             except RequestException:
                 print('Error retrieving google trends json.')
         self.search_Terms = set(self.search_Terms)
@@ -155,17 +160,26 @@ class Microsoft_Rewards_Automation():
         if instance == 5:
             return split_Terms[20:25]
 
-    def chrome_Ctrl(self, username, password, searches, instance):
+    def chrome_Ctrl(self, username, password, searches):
         _ = chrome_Instances()
         bot = _.get_Browser()
         bot.get("https://google.com")
 
     def main(self):
-        with ProcessPoolExecutor() as executer:
-            
-            pass
-        self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,1))
-        self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,2))
-        self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,3))
+        if __name__ == '__main__':
+            self.processes, self.data = [], []
+            for w in range(self.accounts_Using):
+                x = w + 1
+                for y in range(3): 
+                    z = y + 1
+                    temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z))
+                    self.data.append(temp)
+            for tuple in self.data:
+                p = Process(target=self.chrome_Ctrl,args=tuple)
+                p.start()
+                self.processes.append(p)
+            for item in self.processes:
+                item.join()
+
 MSRA = Microsoft_Rewards_Automation()
 MSRA.main() 
