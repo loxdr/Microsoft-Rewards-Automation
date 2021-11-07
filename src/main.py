@@ -1,17 +1,19 @@
+from concurrent.futures.process import ProcessPoolExecutor
 from os.path import isfile
 from sys import exit, platform
 from json import load, loads
 from selenium import webdriver
 from datetime import datetime, timedelta
 from time import sleep
-#from selenium.webdriver.chrome.options import Options <-- Future headless support
+from selenium.webdriver.chrome.options import Options #<-- Future headless support
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from random import randint
-import requests
+from requests import get
 from requests.exceptions import RequestException
+from concurrent.futures import ProcessPoolExecutor
 
 class chrome_Instances():
     def __init__(self):       
@@ -29,14 +31,18 @@ class chrome_Instances():
     
     def chrome_Init(self):
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
+        #options.add_argument('--headless')
         if self.os == 'Windows':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe", chrome_options=options)
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe", options=options)
         if self.os == 'Mac':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver", chrome_options=options)
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver", options=options)
         if self.os == 'Linux':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver-linux", chrome_options=options)
-
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver-linux", options=options)
+        return self.browser
+    
+    def get_Browser(self):
+        return self.browser
+    
     def action_get(self, url):
         self.browser.get(url)
     
@@ -51,14 +57,16 @@ class chrome_Instances():
     def action_wait_to_load(self, xpath):
         element = WebDriverWait(self.browser, 20).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
+
 class Microsoft_Rewards_Automation():
     def __init__(self):
         # Variables
-        self.ci_1 = []
-        self.ci_2 = []
-        self.ci_3 = []
-        self.ci_4 = []
-        self.ci_5 = []
+        self.a_1 = []
+        self.a_2 = []
+        self.a_3 = []
+        self.a_4 = []
+        self.a_5 = []
+        self.accounts = [self.a_1, self.a_2] # , self.a_3, self.a_4, self.a_5
         self.accounts_Using = 5
         self.search_Terms = []
         
@@ -116,7 +124,7 @@ class Microsoft_Rewards_Automation():
         for date in dates:
             try:
                 url = f'https://trends.google.com/trends/api/dailytrends?hl=en-US&ed={date}&geo=US&ns=15'
-                request = requests.get(url)
+                request = get(url)
                 response = loads(request.text[5:])
                 for topic in response['default']['trendingSearchesDays'][0]['trendingSearches']:
                     self.search_Terms.append(topic['title']['query'].lower())
@@ -147,4 +155,17 @@ class Microsoft_Rewards_Automation():
         if instance == 5:
             return split_Terms[20:25]
 
+    def chrome_Ctrl(self, username, password, searches, instance):
+        _ = chrome_Instances()
+        bot = _.get_Browser()
+        bot.get("https://google.com")
+
+    def main(self):
+        with ProcessPoolExecutor() as executer:
+
+            pass
+        self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,1))
+        self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,2))
+        self.chrome_Ctrl(self.account_1_email, self.account_1_pass, self.sts(1,3))
 MSRA = Microsoft_Rewards_Automation()
+MSRA.main() 
