@@ -37,11 +37,11 @@ class chrome_Instances():
         options.add_argument("--disable-crash-reporter")
         options.add_argument("--log-level=3")
         if self.os == 'Windows':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe", options=options)
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/Chrome-Files/chromedriver.exe", options=options)
         if self.os == 'Mac':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver", options=options)
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/Chrome-Files/chromedriver", options=options)
         if self.os == 'Linux':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver-linux", options=options)
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/Chrome-Files/chromedriver-linux", options=options)
         return self.browser
     
     def get_Browser(self):
