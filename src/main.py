@@ -64,19 +64,13 @@ class chrome_Instances():
 class Microsoft_Rewards_Automation():
     def __init__(self):
         # Variables
-        self.a_1 = []
-        self.a_2 = []
-        self.a_3 = []
-        self.a_4 = []
-        self.a_5 = []
-        self.accounts = [self.a_1, self.a_2, self.a_3, self.a_4, self.a_5]
-        self.accounts_Using = 5
+        self.accounts_Using = 2
         self.search_Terms = []
         
         # Functions
         self.data_Management()
         self.platform_Checker()
-        self.search_Term_Generation()
+        #self.search_Term_Generation()
 
     def platform_Checker(self):
         self.platform = platform
@@ -135,7 +129,7 @@ class Microsoft_Rewards_Automation():
                     self.search_Terms.append(topic['title']['query'].lower())
                     for related_topic in topic['relatedQueries']:
                         self.search_Terms.append(related_topic['query'].lower())
-                        print('generating terms')
+                print('generating terms')
                 sleep(randint(1, 3))
             except RequestException:
                 print('Error retrieving google trends json.')
@@ -160,25 +154,30 @@ class Microsoft_Rewards_Automation():
         if instance == 5:
             return split_Terms[20:25]
 
-    def chrome_Ctrl(self, username, password, searches):
+    def chrome_Ctrl(self, username, password, searches, set, iter):
         _ = chrome_Instances()
         bot = _.get_Browser()
         bot.get("https://google.com")
+        print(f'Google {set} {iter}')
+        bot.get("https://youtube.com")
+        print(f'Youtube {set} {iter}')
+        bot.get("https://reddit.com")
+        print(f'Reddit {set} {iter}')
 
     def main(self):
         if __name__ == '__main__':
-            self.processes, self.data = [], []
+            self.data,processes = [],[]
             for w in range(self.accounts_Using):
                 x = w + 1
                 for y in range(3): 
                     z = y + 1
-                    temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z))
+                    temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z), x, z)
                     self.data.append(temp)
             for tuple in self.data:
-                p = Process(target=self.chrome_Ctrl,args=tuple)
-                p.start()
-                self.processes.append(p)
-            for item in self.processes:
+                y = Process(target=self.chrome_Ctrl,args=tuple)
+                y.start()
+                processes.append(y)
+            for item in processes:
                 item.join()
 
 MSRA = Microsoft_Rewards_Automation()
