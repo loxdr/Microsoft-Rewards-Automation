@@ -1,23 +1,21 @@
-from concurrent.futures.process import ProcessPoolExecutor
+from datetime import datetime, timedelta
+from json import load, loads
 from multiprocessing import Process
 from os.path import isfile
-from sys import exit, platform
-from json import load, loads
-from selenium import webdriver
-from datetime import datetime, timedelta
-from time import sleep
-from selenium.webdriver.chrome.options import Options #<-- Future headless support
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from random import randint
+from sys import exit, platform
+from time import sleep
 from requests import get
 from requests.exceptions import RequestException
-from concurrent.futures import ProcessPoolExecutor
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 class chrome_Instances():
-    def __init__(self):       
+    def __init__(self):
         self.platform_Checker()
         self.chrome_Init()
 
