@@ -1,14 +1,22 @@
 from os import chmod
 from os.path import isfile
 from sys import exit, platform
-from json import load
+from json import load, loads
 from selenium import webdriver
+from datetime import datetime, timedelta
+from time import sleep
 #from selenium.webdriver.chrome.options import Options <-- Future headless support
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from threading import Thread
+<<<<<<< HEAD
+=======
+from random import randint
+import requests
+from requests.exceptions import RequestException
+>>>>>>> 75aa6434a4aae769bd36b500c6c0531d5420f2c1
 
 class chrome_Instances():
     def __init__(self):       
@@ -25,12 +33,14 @@ class chrome_Instances():
             self.os = "Windows"
     
     def chrome_Init(self):
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
         if self.os == 'Windows':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe")
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver.exe", chrome_options=options)
         if self.os == 'Mac':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver")
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver", chrome_options=options)
         if self.os == 'Linux':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver-linux")
+            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/chromedriver-linux", chrome_options=options)
 
     def action_get(self, url):
         self.browser.get(url)
@@ -50,6 +60,12 @@ class Microsoft_Rewards_Automation():
     def __init__(self):
         self.data_Management()
         self.platform_Checker()
+        self.ci_1 = []
+        self.ci_2 = []
+        self.ci_3 = []
+        self.ci_4 = []
+        self.ci_5 = []
+
 
     def platform_Checker(self):
         self.platform = platform
@@ -92,20 +108,71 @@ class Microsoft_Rewards_Automation():
                 self.account_5_email = data['Account-5']['Email-5']
                 self.account_5_pass = data['Account-5']['Password-5']
 
-    def chrome_Rules(self, username, password, searches, client):
+    def search_Term_Generation(self):
+        dates = []
+        for i in range(0, 5):
+            date = datetime.now() - timedelta(days=i)
+            dates.append(date.strftime('%Y%m%d'))
+        self.search_Terms = []
+        for date in dates:
+            try:
+                url = f'https://trends.google.com/trends/api/dailytrends?hl=en-US&ed={date}&geo=US&ns=15'
+                request = requests.get(url)
+                response = loads(request.text[5:])
+                for topic in response['default']['trendingSearchesDays'][0]['trendingSearches']:
+                    self.search_Terms.append(topic['title']['query'].lower())
+                    for related_topic in topic['relatedQueries']:
+                        self.search_Terms.append(related_topic['query'].lower())
+                sleep(randint(3, 5))
+            except RequestException:
+                print('Error retrieving google trends json.')
+
+        self.search_Terms = set(self.search_Terms)
+
+    def chrome_Rules(self, email, password, searches, client):
         #controlls the 1 instance of chrome
         pass
 
-    def chrome_Thread_Controller(self):
-        #controlls the 5 threads inside 
+    def chrome_Thread_Controller(self, set):
+        if set == 1:
+            for i in range(3):
+                self.ci_1.append(chrome_Instances())
+            self.chrome_Rules(self.account_1_email, self.account_1_pass, self.search_Terms, self.ci_1[0])
+            self.chrome_Rules(self.account_1_email, self.account_1_pass, self)
+        if set == 2:
+            for i in range(3):
+                self.ci_2.append(chrome_Instances())
+
+        if set == 3:
+            for i in range(3):
+                self.ci_3.append(chrome_Instances())
+
+        if set == 4:
+            for i in range(3):
+                self.ci_4.append(chrome_Instances())
+
+        if set == 5:
+            for i in range(3):
+                self.ci_5.append(chrome_Instances())
+
+        #controlls the 3 threads inside 
+        #has 3 chrome running under 1 thread
         pass
 
     def chrome_Main(self):
+<<<<<<< HEAD
         Thread(target=self.chrome_Thread_Controller).start()
         Thread(target=self.chrome_Thread_Controller).start()
         Thread(target=self.chrome_Thread_Controller).start()
         Thread(target=self.chrome_Thread_Controller).start()
         Thread(target=self.chrome_Thread_Controller).start()
+=======
+        Thread(target=self.chrome_Thread_Controller, args=1)
+        Thread(target=self.chrome_Thread_Controller, args=2)
+        Thread(target=self.chrome_Thread_Controller, args=3)
+        Thread(target=self.chrome_Thread_Controller, args=4)
+        Thread(target=self.chrome_Thread_Controller, args=5)
+>>>>>>> 75aa6434a4aae769bd36b500c6c0531d5420f2c1
 
 MSRA = Microsoft_Rewards_Automation()
 MSRA.chrome_Ctrl()
