@@ -126,16 +126,13 @@ class Microsoft_Rewards_Automation():
                 if int == 5: 
                     int2 = randint(1,50)
                     if int2 == 5: 
-                        touch+=1
                         english_Term = english_Term.swapcase()
                 self.search_Terms.append(english_Term)
                 print(english_Term)
             else:
                 # Maths
                 pass
-        print(self.search_Terms)
-        print(touch)
-
+            
         # dates = []
         # for i in range(0, 5):
         #     date = datetime.now() - timedelta(days=i)
