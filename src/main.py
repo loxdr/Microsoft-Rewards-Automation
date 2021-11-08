@@ -113,7 +113,7 @@ class Microsoft_Rewards_Automation():
         maths_signs = [' * ', ' / ', " + ", ' - ', ' plus ', ' minus ', ' times ', ' divided by ', ' over ']
 
         self.words = ['banana', 'dog', 'water', 'sleep']
-        touch = 0
+
         while len(self.search_Terms) < 100000:
             if randint(1,2) == 1:
                 english_Term = english[randint(0,len(english)-1)]
@@ -132,7 +132,7 @@ class Microsoft_Rewards_Automation():
             else:
                 # Maths
                 pass
-            
+
         # dates = []
         # for i in range(0, 5):
         #     date = datetime.now() - timedelta(days=i)
