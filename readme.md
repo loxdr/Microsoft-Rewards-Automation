@@ -2,7 +2,7 @@
 ### _The best Bing Rewards Bot_
 
 MSRA ( Microsoft Bing Rewards Automation ) is a fast and efficient script 
-which can be automaticall run as a headless process each day to generate 
+which can be automatically run as a headless process each day to generate 
 points for bing rewards
 
 - Undetectable as it spoofs useragents and performs random searches
