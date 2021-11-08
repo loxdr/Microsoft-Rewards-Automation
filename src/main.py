@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from json import load, loads
 from multiprocessing import Process
 from os.path import isfile
-from random import randint
+from random import randint,choice
 from sys import exit, platform
 from time import sleep
 
@@ -14,6 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from re import sub
 
 class chrome_Instances():
     def __init__(self):
@@ -46,30 +47,21 @@ class chrome_Instances():
     def get_Browser(self):
         return self.browser
     
-    def action_get(self, url):
-        self.browser.get(url)
-    
-    def action_click(self, xpath):
-        temp = self.browser.find_element_by_xpath(xpath=xpath)
-        temp.click()
-    
     def action_key(self, xpath, keys):
         temp = self.browser.find_element_by_xpath(xpath=xpath)
         temp.send_keys(keys)
     
-    def action_wait_to_load(self, xpath):
-        element = WebDriverWait(self.browser, 20).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
 class Microsoft_Rewards_Automation():
     def __init__(self):
         # Variables
-        self.accounts_Using = 2
+        self.accounts_Using = 1
         self.search_Terms = []
         
         # Functions
         self.data_Management()
         self.platform_Checker()
-        #self.search_Term_Generation()
+        self.search_Term_Generation()
 
     def platform_Checker(self):
         self.platform = platform
@@ -115,24 +107,53 @@ class Microsoft_Rewards_Automation():
                 self.account_Password_List = [self.account_1_pass,self.account_2_pass,self.account_3_pass,self.account_4_pass, self.account_5_pass]
 
     def search_Term_Generation(self):
-        dates = []
-        for i in range(0, 5):
-            date = datetime.now() - timedelta(days=i)
-            dates.append(date.strftime('%Y%m%d'))
-        for date in dates:
-            try:
-                url = f'https://trends.google.com/trends/api/dailytrends?hl=en-US&ed={date}&geo=US&ns=15'
-                request = get(url)
-                response = loads(request.text[5:])
-                for topic in response['default']['trendingSearchesDays'][0]['trendingSearches']:
-                    self.search_Terms.append(topic['title']['query'].lower())
-                    for related_topic in topic['relatedQueries']:
-                        self.search_Terms.append(related_topic['query'].lower())
-                print('generating terms')
-                sleep(randint(1, 3))
-            except RequestException:
-                print('Error retrieving google trends json.')
-        self.search_Terms = set(self.search_Terms)
+        english = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What is a synonym of 5", "What is an antonym of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did 5 come from?"]
+        english_Operations = ['.upper()', '.lower()']
+        maths = ["What is the answer to 5", "How do you solve 5", "5 is equal to", "5"]
+        maths_signs = [' * ', ' / ', " + ", ' - ', ' plus ', ' minus ', ' times ', ' divided by ', ' over ']
+
+        self.words = ['banana', 'dog', 'water', 'sleep']
+        touch = 0
+        while len(self.search_Terms) < 100000:
+            if randint(1,2) == 1:
+                english_Term = english[randint(0,len(english)-1)]
+                english_Term = sub('5', choice(self.words), english_Term)
+                int = randint(1,5)
+                if int == 1: english_Term = english_Term.upper()
+                if int == 2: english_Term = english_Term.lower()
+                if int == 3: english_Term = english_Term.title()
+                if int == 4: english_Term = english_Term.capitalize()
+                if int == 5: 
+                    int2 = randint(1,50)
+                    if int2 == 5: 
+                        touch+=1
+                        english_Term = english_Term.swapcase()
+                self.search_Terms.append(english_Term)
+                print(english_Term)
+            else:
+                # Maths
+                pass
+        print(self.search_Terms)
+        print(touch)
+
+        # dates = []
+        # for i in range(0, 5):
+        #     date = datetime.now() - timedelta(days=i)
+        #     dates.append(date.strftime('%Y%m%d'))
+        # for date in dates:
+        #     print(date)
+        #     exit()
+        #     try:
+        #         url = f'https://trends.google.com/trends/api/dailytrends?hl=en-US&ed={date}&geo=US&ns=15'
+        #         request = get(url)
+        #         response = loads(request.text[5:])
+        #         for topic in response['default']['trendingSearchesDays'][0]['trendingSearches']:
+        #             self.search_Terms.append(topic['title']['query'].lower())
+        #             for related_topic in topic['relatedQueries']:
+        #                 self.search_Terms.append(related_topic['query'].lower())
+        #     except RequestException:
+        #         print('Error retrieving google trends json.')
+        # self.search_Terms = set(self.search_Terms)
     
     def sts(self, set, instance):
         terms = list(self.search_Terms)
@@ -153,16 +174,34 @@ class Microsoft_Rewards_Automation():
         if instance == 5:
             return split_Terms[20:25]
 
-    def chrome_Ctrl(self, username, password, searches, set, iter):
+    def chrome_Search_Ctrl(self, username, password, searches, set, iter):
         _ = chrome_Instances()
         bot = _.get_Browser()
-        bot.get("https://google.com")
-        print(f'Google {set} {iter}')
-        bot.get("https://youtube.com")
-        print(f'Youtube {set} {iter}')
-        bot.get("https://reddit.com")
-        print(f'Reddit {set} {iter}')
 
+        def action_wait_to_load(xpath):
+            WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+
+        def send_input(xpath, input, input2=None):
+            action_wait_to_load(xpath=xpath)
+            el = bot.find_element_by_xpath(xpath)
+            el.send_keys(input)
+            if input2 != None:
+                el.send_keys(input2)
+
+        def send_click(xpath):
+            action_wait_to_load(xpath=xpath)
+            bot.find_element_by_xpath(xpath).click()
+
+        bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
+        send_input(f"//input[@type='email']", username, Keys.RETURN)
+        send_input(f"//input[@type='password']", password, Keys.RETURN)
+        send_click(f"//input[@type='button']")
+        action_wait_to_load(f"//input[@type='search']")
+        for term in searches[0:randint(3,5)]:
+            bot.get(f"https://www.bing.com/search?q="+term)
+            action_wait_to_load(f"/html/body/header/nav")
+            sleep(3)
+    
     def main(self):
         if __name__ == '__main__':
             self.data,processes = [],[]
@@ -173,11 +212,11 @@ class Microsoft_Rewards_Automation():
                     temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z), x, z)
                     self.data.append(temp)
             for tuple in self.data:
-                y = Process(target=self.chrome_Ctrl,args=tuple)
+                y = Process(target=self.chrome_Search_Ctrl,args=tuple)
                 y.start()
                 processes.append(y)
             for item in processes:
                 item.join()
 
 MSRA = Microsoft_Rewards_Automation()
-MSRA.main() 
+# MSRA.main()
