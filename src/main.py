@@ -107,29 +107,28 @@ class Microsoft_Rewards_Automation():
                 self.account_Password_List = [self.account_1_pass,self.account_2_pass,self.account_3_pass,self.account_4_pass, self.account_5_pass]
 
     def search_Term_Generation(self):
-        english = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What is a synonym of 5", "What is an antonym of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did 5 come from?"]
-        english_Operations = ['.upper()', '.lower()']
-        maths = ["What is the answer to 5", "How do you solve 5", "5 is equal to", "5"]
-        maths_signs = [' * ', ' / ', " + ", ' - ', ' plus ', ' minus ', ' times ', ' divided by ', ' over ']
+        english = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
+        maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
+        maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
 
         self.words = ['banana', 'dog', 'water', 'sleep']
 
-        while len(self.search_Terms) < 100000:
+        while len(self.search_Terms) < 200:
             if randint(1,2) == 1:
-                english_Term = english[randint(0,len(english)-1)]
-                english_Term = sub('5', choice(self.words), english_Term)
-                int = randint(1,5)
+                english_Term = sub('5', choice(self.words), choice(english))
+                int = randint(1,4)
                 if int == 1: english_Term = english_Term.upper()
                 if int == 2: english_Term = english_Term.lower()
                 if int == 3: english_Term = english_Term.title()
                 if int == 4: english_Term = english_Term.capitalize()
-                if int == 5: 
-                    int2 = randint(1,50)
-                    if int2 == 5: 
-                        english_Term = english_Term.swapcase()
                 self.search_Terms.append(english_Term)
                 print(english_Term)
             else:
+                x,y = randint(1,999), randint(1,999)
+                maths_Term = str(x)+choice(maths_signs)+str(y)
+                maths_Term = sub('5', maths_Term, choice(maths))
+                self.search_Terms.append(maths_Term)
+                print(maths_Term)
                 # Maths
                 pass
 
