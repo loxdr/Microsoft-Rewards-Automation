@@ -30,6 +30,12 @@ points for bing rewards
 - Add support for more than 5 accounts
 - Add support for less than 5 accounts
 
+## Future Plans
+
+- Futher extend the capabilities of the Random folder
+    - Add more xxx.txt files
+    - Append more words to each xxx.txt file
+    - Expand options for search generation
 
 ## License
 
