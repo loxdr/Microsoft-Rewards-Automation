@@ -7,7 +7,7 @@ from sys import exit, platform
 from time import sleep
 
 from requests import get
-from requests.exceptions import RequestException
+from requests.exceptions import ChunkedEncodingError, RequestException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -15,7 +15,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import UnexpectedAlertPresentException, TimeoutException
-from re import sub
+from re import search, sub
 
 class chrome_Instances():
     def __init__(self):
@@ -107,13 +107,12 @@ class Microsoft_Rewards_Automation():
                 self.account_Password_List = [self.account_1_pass,self.account_2_pass,self.account_3_pass,self.account_4_pass, self.account_5_pass]
 
     def search_Term_Generation(self):
-        english = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
+        words = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-        movies_terms, states_terms = [], []
+        movies_terms, states_terms, words_terms = [], [], []
         movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', 'Who produced 5']
         states = ['Where is 5', 'Who is the governer of 5', 'whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', 'who are the native people in 5', 'Whats the capital of 5']
-        
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
@@ -124,10 +123,17 @@ class Microsoft_Rewards_Automation():
             for i in lines:
                 i = sub('\n', '', i)
                 states_terms.append(i)
+        with open('src/Support-Files/Random/words.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                words_terms.append(i)
         
-        while len(self.search_Terms) < 200:
-            if randint(1,2) == 1:
-                english_Term = sub('5', choice(self.words), choice(english))
+        while len(self.search_Terms) < 500:
+            rng = randint(1,4)
+            if rng == 1:
+                # English
+                english_Term = sub('5', choice(words_terms), choice(words))
                 int = randint(1,4)
                 if int == 1: english_Term = english_Term.upper()
                 if int == 2: english_Term = english_Term.lower()
@@ -135,15 +141,39 @@ class Microsoft_Rewards_Automation():
                 if int == 4: english_Term = english_Term.capitalize()
                 self.search_Terms.append(english_Term)
                 print(english_Term)
-            else:
+                pass
+            if rng == 2:
+                # Maths
                 x,y = randint(1,999), randint(1,999)
                 maths_Term = str(x)+choice(maths_signs)+str(y)
                 maths_Term = sub('5', maths_Term, choice(maths))
                 self.search_Terms.append(maths_Term)
                 print(maths_Term)
-                # Maths
                 pass
-
+            if rng == 3:
+                # Movies
+                movie_Term = sub('5', choice(movies_terms), choice(movies))
+                int = randint(1,4)
+                if int == 1: movie_Term = movie_Term.upper()
+                if int == 2: movie_Term = movie_Term.lower()
+                if int == 3: movie_Term = movie_Term.title()
+                if int == 4: movie_Term = movie_Term.capitalize()
+                self.search_Terms.append(movie_Term)
+                print(movie_Term)
+                pass
+            if rng == 4:
+                # States
+                state_Term = sub('5', choice(states_terms), choice(states))
+                int = randint(1,4)
+                if int == 1: state_Term = state_Term.upper()
+                if int == 2: state_Term = state_Term.lower()
+                if int == 3: state_Term = state_Term.title()
+                if int == 4: state_Term = state_Term.capitalize()
+                self.search_Terms.append(state_Term)
+                print(state_Term)
+                pass
+        print(len(self.search_Terms))
+        exit()
         # dates = []
         # for i in range(0, 5):
         #     date = datetime.now() - timedelta(days=i)
