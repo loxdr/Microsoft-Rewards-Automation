@@ -113,6 +113,7 @@ class Microsoft_Rewards_Automation():
         movies_terms, states_terms, words_terms = [], [], []
         movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', 'Who produced 5']
         states = ['Where is 5', 'Who is the governer of 5', 'whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', 'who are the native people in 5', 'Whats the capital of 5']
+        
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
@@ -140,7 +141,6 @@ class Microsoft_Rewards_Automation():
                 if int == 3: english_Term = english_Term.title()
                 if int == 4: english_Term = english_Term.capitalize()
                 self.search_Terms.append(english_Term)
-                print(english_Term)
                 pass
             if rng == 2:
                 # Maths
@@ -148,7 +148,6 @@ class Microsoft_Rewards_Automation():
                 maths_Term = str(x)+choice(maths_signs)+str(y)
                 maths_Term = sub('5', maths_Term, choice(maths))
                 self.search_Terms.append(maths_Term)
-                print(maths_Term)
                 pass
             if rng == 3:
                 # Movies
@@ -159,7 +158,6 @@ class Microsoft_Rewards_Automation():
                 if int == 3: movie_Term = movie_Term.title()
                 if int == 4: movie_Term = movie_Term.capitalize()
                 self.search_Terms.append(movie_Term)
-                print(movie_Term)
                 pass
             if rng == 4:
                 # States
@@ -170,30 +168,12 @@ class Microsoft_Rewards_Automation():
                 if int == 3: state_Term = state_Term.title()
                 if int == 4: state_Term = state_Term.capitalize()
                 self.search_Terms.append(state_Term)
-                print(state_Term)
                 pass
-        print(len(self.search_Terms))
-        exit()
-        # dates = []
-        # for i in range(0, 5):
-        #     date = datetime.now() - timedelta(days=i)
-        #     dates.append(date.strftime('%Y%m%d'))
-        # for date in dates:
-        #     print(date)
-        #     exit()
-        #     try:
-        #         url = f'https://trends.google.com/trends/api/dailytrends?hl=en-US&ed={date}&geo=US&ns=15'
-        #         request = get(url)
-        #         response = loads(request.text[5:])
-        #         for topic in response['default']['trendingSearchesDays'][0]['trendingSearches']:
-        #             self.search_Terms.append(topic['title']['query'].lower())
-        #             for related_topic in topic['relatedQueries']:
-        #                 self.search_Terms.append(related_topic['query'].lower())
-        #     except RequestException:
-        #         print('Error retrieving google trends json.')
-        # self.search_Terms = set(self.search_Terms)
     
     def sts(self, set, instance):
+
+        # 10 - 15 daily searches
+        
         terms = list(self.search_Terms)
         st_Length = len(terms)
         ct_Allocation = st_Length / self.accounts_Using
