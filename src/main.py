@@ -14,6 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import UnexpectedAlertPresentException, TimeoutException
 from re import sub
 
 class chrome_Instances():
@@ -51,7 +52,6 @@ class chrome_Instances():
         temp = self.browser.find_element_by_xpath(xpath=xpath)
         temp.send_keys(keys)
     
-
 class Microsoft_Rewards_Automation():
     def __init__(self):
         # Variables
@@ -110,9 +110,21 @@ class Microsoft_Rewards_Automation():
         english = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-
-        self.words = ['banana', 'dog', 'water', 'sleep']
-
+        movies_terms, states_terms = [], []
+        movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', 'Who produced 5']
+        states = ['Where is 5', 'Who is the governer of 5', 'whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', 'who are the native people in 5', 'Whats the capital of 5']
+        
+        with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                movies_terms.append(i)
+        with open('src/Support-Files/Random/states.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                states_terms.append(i)
+        
         while len(self.search_Terms) < 200:
             if randint(1,2) == 1:
                 english_Term = sub('5', choice(self.words), choice(english))
@@ -175,7 +187,11 @@ class Microsoft_Rewards_Automation():
         bot = _.get_Browser()
 
         def action_wait_to_load(xpath):
-            WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+            try:
+                WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+            except (TimeoutException, UnexpectedAlertPresentException):
+                print("Element not visible time'd out")
+                bot.refresh()
 
         def send_input(xpath, input, input2=None):
             action_wait_to_load(xpath=xpath)
@@ -193,7 +209,7 @@ class Microsoft_Rewards_Automation():
         send_input(f"//input[@type='password']", password, Keys.RETURN)
         send_click(f"//input[@type='button']")
         action_wait_to_load(f"//input[@type='search']")
-        for term in searches[0:randint(3,5)]:
+        for term in searches:
             bot.get(f"https://www.bing.com/search?q="+term)
             action_wait_to_load(f"/html/body/header/nav")
             sleep(3)
@@ -214,5 +230,9 @@ class Microsoft_Rewards_Automation():
             for item in processes:
                 item.join()
 
+    def dailies(username,password,set,iter):
+        #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+        pass
+
 MSRA = Microsoft_Rewards_Automation()
-# MSRA.main()
+MSRA.main()
