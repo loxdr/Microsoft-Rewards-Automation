@@ -107,13 +107,15 @@ class Microsoft_Rewards_Automation():
                 self.account_Password_List = [self.account_1_pass,self.account_2_pass,self.account_3_pass,self.account_4_pass, self.account_5_pass]
 
     def search_Term_Generation(self):
-        words = ["What is the definition of 5", "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
+        words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-        movies_terms, states_terms, words_terms = [], [], []
-        movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', 'Who produced 5']
-        states = ['Where is 5', 'Who is the governer of 5', 'whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', 'who are the native people in 5', 'Whats the capital of 5']
-        
+        movies_terms, states_terms, words_terms, names_terms, country_terms = [], [], [], [], []
+        movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5']
+        states = ['Where is 5', 'Who is the governer of 5', 'whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
+        names = ['Which country is the name 5 from', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
+        countries = ['Where is 5', 'What is the currency in 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
+        # Maths terms are generated as needed so no need for txt file
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
@@ -129,10 +131,20 @@ class Microsoft_Rewards_Automation():
             for i in lines:
                 i = sub('\n', '', i)
                 words_terms.append(i)
-        
+        with open('src/Support-Files/Random/names.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                names_terms.append(i)
+        with open('src/Support-Files/Random/countries.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                country_terms.append(i)
+
         while len(self.search_Terms) < 500:
-            rng = randint(1,4)
-            if rng == 1:
+            rng = randint(1,6)
+            if rng == 1: # English
                 # English
                 english_Term = sub('5', choice(words_terms), choice(words))
                 int = randint(1,4)
@@ -142,14 +154,14 @@ class Microsoft_Rewards_Automation():
                 if int == 4: english_Term = english_Term.capitalize()
                 self.search_Terms.append(english_Term)
                 pass
-            if rng == 2:
+            if rng == 2: # Maths
                 # Maths
                 x,y = randint(1,999), randint(1,999)
                 maths_Term = str(x)+choice(maths_signs)+str(y)
                 maths_Term = sub('5', maths_Term, choice(maths))
                 self.search_Terms.append(maths_Term)
                 pass
-            if rng == 3:
+            if rng == 3: # Movies
                 # Movies
                 movie_Term = sub('5', choice(movies_terms), choice(movies))
                 int = randint(1,4)
@@ -159,7 +171,7 @@ class Microsoft_Rewards_Automation():
                 if int == 4: movie_Term = movie_Term.capitalize()
                 self.search_Terms.append(movie_Term)
                 pass
-            if rng == 4:
+            if rng == 4: # States
                 # States
                 state_Term = sub('5', choice(states_terms), choice(states))
                 int = randint(1,4)
@@ -168,6 +180,24 @@ class Microsoft_Rewards_Automation():
                 if int == 3: state_Term = state_Term.title()
                 if int == 4: state_Term = state_Term.capitalize()
                 self.search_Terms.append(state_Term)
+                pass
+            if rng == 5: # Names
+                name_Term = sub('5', choice(names_terms), choice(names))
+                int = randint(1,4)
+                if int == 1: name_Term = name_Term.upper()
+                if int == 2: name_Term = name_Term.lower()
+                if int == 3: name_Term = name_Term.title()
+                if int == 4: name_Term = name_Term.capitalize()
+                self.search_Terms.append(name_Term)
+                pass
+            if rng == 6: # Countries
+                country_Term = sub('5', choice(country_terms), choice(countries))
+                int = randint(1,4)
+                if int == 1: country_Term = country_Term.upper()
+                if int == 2: country_Term = country_Term.lower()
+                if int == 3: country_Term = country_Term.title()
+                if int == 4: country_Term = country_Term.capitalize()
+                self.search_Terms.append(country_Term)
                 pass
     
     def sts(self, set, instance):
