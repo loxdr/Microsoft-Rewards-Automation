@@ -2,20 +2,21 @@ from datetime import datetime, timedelta
 from json import load, loads
 from multiprocessing import Process
 from os.path import isfile
-from random import randint,choice
+from random import choice, randint
+from re import search, sub
 from sys import exit, platform
 from time import sleep
 
 from requests import get
 from requests.exceptions import ChunkedEncodingError, RequestException
 from selenium import webdriver
+from selenium.common.exceptions import (TimeoutException, UnexpectedAlertPresentException)
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import UnexpectedAlertPresentException, TimeoutException
-from re import search, sub
+
 
 class chrome_Instances():
     def __init__(self):
@@ -111,9 +112,9 @@ class Microsoft_Rewards_Automation():
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
         movies_terms, states_terms, words_terms, names_terms, country_terms = [], [], [], [], []
-        movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5']
-        states = ['Where is 5', 'Who is the governer of 5', 'whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
-        names = ['Which country is the name 5 from', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
+        movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5', 'What is the storyine in 5', 'How is the plot resolved in 5']
+        states = ['Where is 5', 'Who is the governer of 5', 'Whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
+        names = ['Which country is the name 5 from', 'How popular is 5', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
         countries = ['Where is 5', 'What is the currency in 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
         # Maths terms are generated as needed so no need for txt file
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
@@ -199,7 +200,11 @@ class Microsoft_Rewards_Automation():
                 if int == 4: country_Term = country_Term.capitalize()
                 self.search_Terms.append(country_Term)
                 pass
-    
+        
+        self.search_Terms = set(self.search_Terms)
+        self.search_Terms = list(self.search_Terms)
+        print(self.search_Terms)
+        
     def sts(self, set, instance):
 
         # 10 - 15 daily searches
