@@ -111,11 +111,12 @@ class Microsoft_Rewards_Automation():
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-        movies_terms, states_terms, words_terms, names_terms, country_terms = [], [], [], [], []
+        movies_terms, states_terms, words_terms, names_terms, country_terms, mountain_terms = [], [], [], [], [], []
         movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5', 'What is the storyine in 5', 'How is the plot resolved in 5']
         states = ['Where is 5', 'Who is the governer of 5', 'Whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
         names = ['Which country is the name 5 from', 'How popular is 5', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
-        countries = ['Where is 5', 'What is the currency in 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
+        countries = ['Where is 5', 'What is the currency in 5', 'What is the annual inflation rate for 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
+        mountains = ['Where is 5 located', 'Latitude and Longitude of the mountain 5','What country is 5 in', 'What is the height of 5', 'What is the width of 5', 'Time to climb 5', 'Has anyone died climbing 5', 'Altitude of 5', '5']
         # Maths terms are generated as needed so no need for txt file
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
@@ -142,9 +143,14 @@ class Microsoft_Rewards_Automation():
             for i in lines:
                 i = sub('\n', '', i)
                 country_terms.append(i)
+        with open('src/Support-Files/Random/mountains.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                mountain_terms.append(i)
 
         while len(self.search_Terms) < 500:
-            rng = randint(1,6)
+            rng = randint(1,7)
             if rng == 1: # English
                 # English
                 english_Term = sub('5', choice(words_terms), choice(words))
@@ -199,6 +205,15 @@ class Microsoft_Rewards_Automation():
                 if int == 3: country_Term = country_Term.title()
                 if int == 4: country_Term = country_Term.capitalize()
                 self.search_Terms.append(country_Term)
+                pass
+            if rng == 7: # Mountains
+                mountain_Term = sub('5', choice(mountain_terms), choice(mountains))
+                int = randint(1,4)
+                if int == 1: mountain_Term = mountain_Term.upper()
+                if int == 2: mountain_Term = mountain_Term.lower()
+                if int == 3: mountain_Term = mountain_Term.title()
+                if int == 4: mountain_Term = mountain_Term.capitalize()
+                self.search_Terms.append(mountain_Term)
                 pass
         
         self.search_Terms = set(self.search_Terms)
