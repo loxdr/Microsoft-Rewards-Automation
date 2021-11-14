@@ -3,7 +3,7 @@ from random import randint, choice
 words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
 maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
 maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-movies_terms, states_terms, words_terms, names_terms, country_terms, mountain_terms = [], [], [], [], [], []
+movies_terms, states_terms, prefix_terms, words_terms, teams_terms, names_terms, country_terms, mountain_terms, iphone_terms = [], [], [], [], [], [], [], [], []
 movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5', 'What is the storyine in 5', 'How is the plot resolved in 5']
 states = ['Where is 5', 'Who is the governer of 5', 'Whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
 names = ['Which country is the name 5 from', 'How popular is 5', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
@@ -41,7 +41,22 @@ with open('src/Support-Files/Random/mountains.txt', 'r', encoding='UTF-8') as f:
     for i in lines:
         i = sub('\n', '', i)
         mountain_terms.append(i)
-
+with open('src/Support-Files/Random/teams.txt', 'r', encoding='UTF-8') as f:
+    lines = f.readlines()
+    for i in lines:
+        i = sub('\n', '', i)
+        teams_terms.append(i)
+with open('src/Support-Files/Random/phones.txt', 'r', encoding='UTF-8') as f:
+    lines = f.readlines()
+    for i in lines:
+        i = sub('\n', '', i)
+        iphone_terms.append(i)
+with open('src/Support-Files/Random/prefixes.txt', 'r', encoding='UTF-8') as f:
+    lines = f.readlines()
+    for i in lines:
+        i = sub('\n', '', i)
+        prefix_terms.append(i)
+        
 total_Terms = []
 for i in words_terms:
     for x in words:
@@ -59,8 +74,6 @@ for i in words_terms:
             if z == 4: 
                 english_Term = english_Term.capitalize()
                 total_Terms.append(english_Term)
-
-
 
 # for d in maths:
 #     for i in range(1,1000):
