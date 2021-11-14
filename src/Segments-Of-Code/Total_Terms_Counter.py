@@ -1,5 +1,6 @@
 from re import sub
 from random import randint, choice
+
 words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
 maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
 maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
