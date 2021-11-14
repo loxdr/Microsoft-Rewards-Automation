@@ -260,7 +260,7 @@ class Microsoft_Rewards_Automation():
                 if int == 4: prefix_Term = prefix_Term.capitalize()
                 self.search_Terms.append(prefix_Term)
                 pass
-        
+            
         self.search_Terms = set(self.search_Terms)
         self.search_Terms = list(self.search_Terms)
         print(self.search_Terms)
