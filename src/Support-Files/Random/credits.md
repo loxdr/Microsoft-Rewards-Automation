@@ -1,5 +1,5 @@
 ## Thanks to the following sites
-Used their data and this couldnt have been done without you <3
+This project used their data and couldnt have been done without it <3
 
 
 - https://github.com/datasets/
