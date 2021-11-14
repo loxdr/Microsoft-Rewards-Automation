@@ -111,12 +111,15 @@ class Microsoft_Rewards_Automation():
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-        movies_terms, states_terms, words_terms, names_terms, country_terms, mountain_terms = [], [], [], [], [], []
+        movies_terms, states_terms, prefix_terms, words_terms, teams_terms, names_terms, country_terms, mountain_terms, iphone_terms = [], [], [], [], [], [], [], [], []
         movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5', 'What is the storyine in 5', 'How is the plot resolved in 5']
         states = ['Where is 5', 'Who is the governer of 5', 'Whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
         names = ['Which country is the name 5 from', 'How popular is 5', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
         countries = ['Where is 5', 'What is the currency in 5', 'What is the annual inflation rate for 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
         mountains = ['Where is 5 located', 'Latitude and Longitude of the mountain 5','What country is 5 in', 'What is the height of 5', 'What is the width of 5', 'Time to climb 5', 'Has anyone died climbing 5', 'Altitude of 5', '5']
+        teams = []
+        iphones = ['When was the 5 released', 'Camera quality of the 5', '5', 'Battery life of the 5', 'Screen size of the 5', 'Screen replacement for 5', 'ifixit.com 5']
+        prefixes = ['What is the meaning of 5', '5', 'Metric prefix 5', 'What number is 5', '5 in numbers']
         # Maths terms are generated as needed so no need for txt file
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
@@ -148,9 +151,24 @@ class Microsoft_Rewards_Automation():
             for i in lines:
                 i = sub('\n', '', i)
                 mountain_terms.append(i)
-
+        with open('src/Support-Files/Random/teams.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                teams_terms.append(i)
+        with open('src/Support-Files/Random/phones.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                iphone_terms.append(i)
+        with open('src/Support-Files/Random/prefixes.txt', 'r', encoding='UTF-8') as f:
+            lines = f.readlines()
+            for i in lines:
+                i = sub('\n', '', i)
+                prefix_terms.append(i)
+        
         while len(self.search_Terms) < 500:
-            rng = randint(1,7)
+            rng = randint(1,10)
             if rng == 1: # English
                 # English
                 english_Term = sub('5', choice(words_terms), choice(words))
@@ -214,6 +232,33 @@ class Microsoft_Rewards_Automation():
                 if int == 3: mountain_Term = mountain_Term.title()
                 if int == 4: mountain_Term = mountain_Term.capitalize()
                 self.search_Terms.append(mountain_Term)
+                pass
+            if rng == 8: # Soccer Teams
+                team_Term = sub('5', choice(teams_terms), choice(teams))
+                int = randint(1,4)
+                if int == 1: team_Term = team_Term.upper()
+                if int == 2: team_Term = team_Term.lower()
+                if int == 3: team_Term = team_Term.title()
+                if int == 4: team_Term = team_Term.capitalize()
+                self.search_Terms.append(team_Term)
+                pass
+            if rng == 9: # Iphone
+                iphone_Term = sub('5', choice(iphone_terms), choice(iphones))
+                int = randint(1,4)
+                if int == 1: iphone_Term = iphone_Term.upper()
+                if int == 2: iphone_Term = iphone_Term.lower()
+                if int == 3: iphone_Term = iphone_Term.title()
+                if int == 4: iphone_Term = iphone_Term.capitalize()
+                self.search_Terms.append(iphone_Term)
+                pass
+            if rng == 10: # Prefixes
+                prefix_Term = sub('5', choice(prefix_terms), choice(prefixes))
+                int = randint(1,4)
+                if int == 1: prefix_Term = prefix_Term.upper()
+                if int == 2: prefix_Term = prefix_Term.lower()
+                if int == 3: prefix_Term = prefix_Term.title()
+                if int == 4: prefix_Term = prefix_Term.capitalize()
+                self.search_Terms.append(prefix_Term)
                 pass
         
         self.search_Terms = set(self.search_Terms)
