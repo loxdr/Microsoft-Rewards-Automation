@@ -75,7 +75,7 @@ for i in words_terms:
             if z == 4: 
                 english_Term = english_Term.capitalize()
                 total_Terms.append(english_Term)
-
+ 
 # for d in maths:
 #     for i in range(1,1000):
 #         for x in range(1,1000):
