@@ -10,4 +10,4 @@ Used their data and this couldnt have been done without you <3
 - https://www.randomlists.com/
 - https://github.com/APonce73/Mountains/
 
-> There is over 500,000 lines of randomness!
+> There is over 500,000 lines of randomness
