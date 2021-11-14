@@ -83,4 +83,5 @@ for i in words_terms:
 #                 math = str(i)+z+str(x)
 #                 maths_Term = sub('5', math, d)
 #                 total_Terms.append(maths_Term)
+
 print(len(total_Terms))
