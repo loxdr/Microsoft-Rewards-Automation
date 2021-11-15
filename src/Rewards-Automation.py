@@ -19,7 +19,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class chrome_Instances():
-    def __init__(self):
+    def __init__(self, agent):
+        self.agent = agent
         self.platform_Checker()
         self.chrome_Init()
 
@@ -35,6 +36,7 @@ class chrome_Instances():
     def chrome_Init(self):
         options = webdriver.ChromeOptions()
         #options.add_argument('--headless')
+        options.add_argument(f"user-agent={self.agent}")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-crash-reporter")
         options.add_argument("--log-level=3")
@@ -111,19 +113,19 @@ class Microsoft_Rewards_Automation():
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
         maths_signs = ['*', '/', "+", '-', ' plus ', ' minus ', ' times ', ' divided by ', ' over ', ' to the power of ']
-        movies_terms, states_terms, cities_terms, prefix_terms, words_terms, teams_terms, names_terms, country_terms, mountain_terms, iphone_terms, airport_code_terms, airport_name_terms = [], [], [], [], [], [], [], [], [], [], [], []
         movies = ['Who are the main actors in 5', 'Who is the main character in 5', 'What is the plot of 5', 'When was 5 released', 'When was the movie 5 released', '5','Who produced 5', 'What is the storyine in 5', 'How is the plot resolved in 5']
-        states = ['Where is 5', 'Who is the governer of 5', 'Whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
+        states = ['Where is 5', 'Pictures of 5', 'Who is the governer of 5', 'Whats the area of 5', '5 election', 'Who is the home NFL team for 5', 'What are the attractions in 5', '5', 'who are the native people in 5', 'Whats the capital of 5']
         names = ['Which country is the name 5 from', 'How popular is 5', 'Origin of the name 5', 'Is the name 5 popular', 'Names like 5', 'Other names like 5', '5']
-        countries = ['Where is 5', 'What is the currency in 5', 'What is the annual inflation rate for 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
-        mountains = ['Where is 5 located', 'Latitude and Longitude of the mountain 5','What country is 5 in', 'What is the height of 5', 'What is the width of 5', 'Time to climb 5', 'Has anyone died climbing 5', 'Altitude of 5', '5']
-        teams = ['Score for 5', 'Where is 5 on the ladder', 'Ladder 5', '5', 'Top five players in 5', 'Average pay of player in 5', 'Most popular player in 5', 'Highest paid player in 5', '5 goalkeeper']
-        cities = ['Where is 5', 'What continent is 5', 'Whats the population of 5', 'How many pepole live in 5', 'Average household size in 5']
+        countries = ['Where is 5', 'Pictures of 5', 'What is the currency in 5', 'What is the annual inflation rate for 5', 'Currency of 5', 'What are the neiboring countries of 5', 'Nearest country of 5', 'Capital of 5', 'Government of 5', 'Average internet speed in 5']
+        mountains = ['Where is 5 located', 'Pictures of 5', 'Latitude and Longitude of the mountain 5','What country is 5 in', 'What is the height of 5', 'What is the width of 5', 'Time to climb 5', 'Has anyone died climbing 5', 'Altitude of 5', '5']
+        teams = ['Score for 5', 'Pictures of 5', 'Where is 5 on the ladder', 'Ladder 5', '5', 'Top five players in 5', 'Average pay of player in 5', 'Most popular player in 5', 'Highest paid player in 5', '5 goalkeeper']
+        cities = ['Where is 5', 'Pictures of 5', 'What continent is 5', 'Whats the population of 5', 'How many pepole live in 5', 'Average household size in 5']
         airport_Codes = ['Airport data for 5', 'Whats the active runway for 5', 'When was 5 made', 'Who operates 5', 'Operation time of 5', 'Open hours of 5', 'Open date of 5', 'What airlines fly to 5', 'Airport charts for 5']
-        airport_Names = ['Airport data for 5', 'Whats the active runway for 5', 'When was 5 made', 'Who operates 5', 'Operation time of 5', 'Open hours of 5', 'Open date of 5', 'What airlines fly to 5', 'Airport charts for 5']
-        iphones = ['When was the 5 released', 'Camera quality of the 5', '5', 'Battery life of the 5', 'Screen size of the 5', 'Screen replacement for 5', 'ifixit.com 5']
+        airport_Names = ['Airport data for 5', 'Pictures of 5', 'Whats the active runway for 5', 'When was 5 made', 'Who operates 5', 'Operation time of 5', 'Open hours of 5', 'Open date of 5', 'What airlines fly to 5', 'Airport charts for 5']
+        iphones = ['When was the 5 released', 'Pictures of 5', 'Camera quality of the 5', '5', 'Battery life of the 5', 'Screen size of the 5', 'Screen replacement for 5', 'ifixit.com 5']
         prefixes = ['What is the meaning of 5', '5', 'Metric prefix 5', 'What number is 5', '5 in numbers']
-        # Maths terms are generated as needed so no need for txt file
+        movies_terms, states_terms, cities_terms, prefix_terms, words_terms, teams_terms, names_terms, country_terms, mountain_terms, iphone_terms, airport_code_terms, airport_name_terms = [], [], [], [], [], [], [], [], [], [], [], []
+        
         with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
@@ -185,7 +187,7 @@ class Microsoft_Rewards_Automation():
                 i = sub('\n', '', i)
                 airport_code_terms.append(i)
         
-        while len(self.search_Terms) < 500:
+        while len(self.search_Terms) < 750:
             rng = randint(1,13)
             if rng == 1: # English
                 # English
@@ -304,38 +306,43 @@ class Microsoft_Rewards_Automation():
                 if int == 3: airport_Name_Term = airport_Name_Term.title()
                 if int == 4: airport_Name_Term = airport_Name_Term.capitalize()
                 self.search_Terms.append(airport_Name_Term)
-                pass
-            
+                pass 
         self.search_Terms = set(self.search_Terms)
         self.search_Terms = list(self.search_Terms)
-        print(self.search_Terms)
-        exit()
-    def sts(self, set, instance):
 
+    def sts(self, set, instance, mobile = False):
+        # set is one of 5 accounts
+        # instance is one of 3
+        # each instance needs 10-15 words
+        # mobile is default as false unless specified
         # 10 - 15 daily searches
-        
-        terms = list(self.search_Terms)
-        st_Length = len(terms)
-        ct_Allocation = st_Length / self.accounts_Using
+        ct_Allocation = len(list(self.search_Terms)) / self.accounts_Using
         ct_Allocation = round(ct_Allocation)
         ct_End = ct_Allocation * set
         ct_Start = ct_End - ct_Allocation
-        split_Terms = terms[int(ct_Start):int(ct_End)]
-        if instance == 1:
-            return split_Terms[0:5]
-        if instance == 2:
-            return split_Terms[5:10]
-        if instance == 3:
-            return split_Terms[10:15]
-        if instance == 4:
-            return split_Terms[15:20]
-        if instance == 5:
-            return split_Terms[20:25]
-
-    def chrome_Search_Ctrl(self, username, password, searches, set, iter):
-        _ = chrome_Instances()
+        split_Terms = list(self.search_Terms)[int(ct_Start):int(ct_End)]
+        if mobile == True:
+            return split_Terms[60:85]
+        if mobile != True:
+            if instance == 1:
+                return split_Terms[0:20]
+            if instance == 2:
+                return split_Terms[20:40]
+            if instance == 3:
+                return split_Terms[40:60]
+        
+    def chrome_Search_Ctrl(self, username, password, searches, set, iter, mobile = False, edge = False):
+        mobile_Agents = ['Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1']
+        edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
+        desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
+        if mobile == True:
+            _ = chrome_Instances(choice(mobile_Agents))
+        if edge == True:
+            _ = chrome_Instances(choice(edge_Agents))
+        if edge != True and mobile != True:
+            _ = chrome_Instances(choice(desktop_Agents))
         bot = _.get_Browser()
-
+        
         def action_wait_to_load(xpath):
             try:
                 WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
@@ -353,25 +360,32 @@ class Microsoft_Rewards_Automation():
         def send_click(xpath):
             action_wait_to_load(xpath=xpath)
             bot.find_element_by_xpath(xpath).click()
-
-        bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
-        send_input(f"//input[@type='email']", username, Keys.RETURN)
-        send_input(f"//input[@type='password']", password, Keys.RETURN)
-        send_click(f"//input[@type='button']")
-        action_wait_to_load(f"//input[@type='search']")
-        for term in searches:
-            bot.get(f"https://www.bing.com/search?q="+term)
-            action_wait_to_load(f"/html/body/header/nav")
-            sleep(3)
+        
+        bot.get('https://www.whatsmyua.info/')
+        sleep(20)
+        # bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
+        # send_input(f"//input[@type='email']", username, Keys.RETURN)
+        # send_input(f"//input[@type='password']", password, Keys.RETURN)
+        # send_click(f"//input[@type='button']")
+        # action_wait_to_load(f"//input[@type='search']")
+        # for term in searches:
+        #     bot.get(f"https://www.bing.com/search?q="+term)
+        #     action_wait_to_load(f"/html/body/header/nav")
+        #     sleep(3)
     
     def main(self):
         if __name__ == '__main__':
             self.data,processes = [],[]
             for w in range(self.accounts_Using):
                 x = w + 1
-                for y in range(3): 
+                for y in range(5): 
                     z = y + 1
-                    temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z), x, z)
+                    if z != 4: # Desktop
+                        temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z), x, z, False)    
+                    if z == 4: # Mobile
+                        temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z, mobile=True), x, z, True)
+                    if z == 5: # Edge
+                        temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z, mobile=True), x, z, False, True)
                     self.data.append(temp)
             for tuple in self.data:
                 y = Process(target=self.chrome_Search_Ctrl,args=tuple)
