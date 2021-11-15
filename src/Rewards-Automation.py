@@ -361,17 +361,15 @@ class Microsoft_Rewards_Automation():
             action_wait_to_load(xpath=xpath)
             bot.find_element_by_xpath(xpath).click()
         
-        bot.get('https://www.whatsmyua.info/')
-        sleep(20)
-        # bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
-        # send_input(f"//input[@type='email']", username, Keys.RETURN)
-        # send_input(f"//input[@type='password']", password, Keys.RETURN)
-        # send_click(f"//input[@type='button']")
-        # action_wait_to_load(f"//input[@type='search']")
-        # for term in searches:
-        #     bot.get(f"https://www.bing.com/search?q="+term)
-        #     action_wait_to_load(f"/html/body/header/nav")
-        #     sleep(3)
+        bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
+        send_input(f"//input[@type='email']", username, Keys.RETURN)
+        send_input(f"//input[@type='password']", password, Keys.RETURN)
+        send_click(f"//input[@type='button']")
+        action_wait_to_load(f"//input[@type='search']")
+        for term in searches:
+            bot.get(f"https://www.bing.com/search?q="+term)
+            action_wait_to_load(f"/html/body/header/nav")
+            sleep(3)
     
     def main(self):
         if __name__ == '__main__':
