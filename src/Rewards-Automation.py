@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
-from json import load, loads
+from json import load
 from multiprocessing import Process
 from os.path import isfile
 from random import choice, randint
-from re import search, sub
+from re import sub
 from sys import exit, platform
 from time import sleep
+import time
 
 from requests import get
 from requests.exceptions import ChunkedEncodingError, RequestException
@@ -16,7 +16,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
 
 class chrome_Instances():
     def __init__(self, agent):
@@ -57,11 +56,9 @@ class chrome_Instances():
     
 class Microsoft_Rewards_Automation():
     def __init__(self):
-        # Variables
-        self.accounts_Using = 1
+        self.accounts_Using = None
         self.search_Terms = []
-        
-        # Functions
+
         self.data_Management()
         self.platform_Checker()
         self.search_Term_Generation()
@@ -96,18 +93,12 @@ class Microsoft_Rewards_Automation():
                     print("\n\n\n  >>  You need to enter usernames and passwords into data.json")
                     print("  >>  An example is in example-json.txtn\n\n\n")
                     exit()
-                self.account_1_email = data['Account-1']['Email-1']
-                self.account_1_pass = data['Account-1']['Password-1']
-                self.account_2_email = data['Account-2']['Email-2']
-                self.account_2_pass = data['Account-2']['Password-2']
-                self.account_3_email = data['Account-3']['Email-3']
-                self.account_3_pass = data['Account-3']['Password-3']
-                self.account_4_email = data['Account-4']['Email-4']
-                self.account_4_pass = data['Account-4']['Password-4']
-                self.account_5_email = data['Account-5']['Email-5']
-                self.account_5_pass = data['Account-5']['Password-5']
-                self.account_Email_List = [self.account_1_email,self.account_2_email,self.account_3_email,self.account_4_email,self.account_5_email]
-                self.account_Password_List = [self.account_1_pass,self.account_2_pass,self.account_3_pass,self.account_4_pass, self.account_5_pass]
+                self.accounts_Using = len(data)
+                self.account_Data = []
+                for i in range(1, self.accounts_Using+1):
+                    self.account_Data.append(data[f'Account-{i}'][f'Email-{i}'])
+                    self.account_Data.append(data[f'Account-{i}'][f'Password-{i}'])
+                print(self.account_Data)
 
     def search_Term_Generation(self):
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
@@ -311,11 +302,6 @@ class Microsoft_Rewards_Automation():
         self.search_Terms = list(self.search_Terms)
 
     def sts(self, set, instance, mobile = False):
-        # set is one of 5 accounts
-        # instance is one of 3
-        # each instance needs 10-15 words
-        # mobile is default as false unless specified
-        # 10 - 15 daily searches
         ct_Allocation = len(list(self.search_Terms)) / self.accounts_Using
         ct_Allocation = round(ct_Allocation)
         ct_End = ct_Allocation * set
@@ -336,10 +322,13 @@ class Microsoft_Rewards_Automation():
         edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
         if mobile == True:
+            device = 'mobile'
             _ = chrome_Instances(choice(mobile_Agents))
         if edge == True:
+            device = 'edge'
             _ = chrome_Instances(choice(edge_Agents))
         if edge != True and mobile != True:
+            device = 'desktop'
             _ = chrome_Instances(choice(desktop_Agents))
         bot = _.get_Browser()
         
@@ -347,8 +336,14 @@ class Microsoft_Rewards_Automation():
             try:
                 WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
             except (TimeoutException, UnexpectedAlertPresentException):
-                print("Element not visible time'd out")
                 bot.refresh()
+                sleep(5)
+
+        def action_wait_to_go(xpath):
+            try:
+                WebDriverWait(bot, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+            except (TimeoutException, UnexpectedAlertPresentException):
+                sleep(5)
 
         def send_input(xpath, input, input2=None):
             action_wait_to_load(xpath=xpath)
@@ -361,16 +356,23 @@ class Microsoft_Rewards_Automation():
             action_wait_to_load(xpath=xpath)
             bot.find_element_by_xpath(xpath).click()
         
-        bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
-        send_input(f"//input[@type='email']", username, Keys.RETURN)
-        send_input(f"//input[@type='password']", password, Keys.RETURN)
-        send_click(f"//input[@type='button']")
-        action_wait_to_load(f"//input[@type='search']")
-        for term in searches:
-            bot.get(f"https://www.bing.com/search?q="+term)
-            action_wait_to_load(f"/html/body/header/nav")
-            sleep(3)
-    
+        def signin():
+            bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
+            send_input(f"//input[@type='email']", username, Keys.RETURN)
+            send_input(f"//input[@type='password']", password, Keys.RETURN)
+            if bot.current_url != None and 'login' in bot.current_url: send_click(f"//input[@type='button']")
+            action_wait_to_load(f"//input[@type='search']")
+        
+        def search():
+            for term in searches:
+                bot.get(f"https://www.bing.com/search?q="+term)
+                action_wait_to_go(f'//*[@id="sb_form_q"]')
+                sleep(3)
+
+        signin()
+        search() 
+        
+
     def main(self):
         if __name__ == '__main__':
             self.data,processes = [],[]
@@ -379,11 +381,11 @@ class Microsoft_Rewards_Automation():
                 for y in range(5): 
                     z = y + 1
                     if z != 4: # Desktop
-                        temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z), x, z, False)    
+                        temp = (self.account_Data[w], self.account_Data[w+1], self.sts(x,z), x, z, False)    
                     if z == 4: # Mobile
-                        temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z, mobile=True), x, z, True)
+                        temp = (self.account_Data[w], self.account_Data[w+1], self.sts(x,z, mobile=True), x, z, True)
                     if z == 5: # Edge
-                        temp = (self.account_Email_List[w], self.account_Password_List[w], self.sts(x,z, mobile=True), x, z, False, True)
+                        temp = (self.account_Data[w], self.account_Data[w+1], self.sts(x,z, mobile=True), x, z, False, True)
                     self.data.append(temp)
             for tuple in self.data:
                 y = Process(target=self.chrome_Search_Ctrl,args=tuple)
