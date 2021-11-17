@@ -5,13 +5,10 @@ from random import choice, randint
 from re import sub
 from sys import exit, platform
 from time import sleep
-import time
 
 from requests import get
-from requests.exceptions import ChunkedEncodingError, RequestException
 from selenium import webdriver
 from selenium.common.exceptions import (TimeoutException, UnexpectedAlertPresentException)
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -298,6 +295,7 @@ class Microsoft_Rewards_Automation():
                 if int == 4: airport_Name_Term = airport_Name_Term.capitalize()
                 self.search_Terms.append(airport_Name_Term)
                 pass 
+        
         self.search_Terms = set(self.search_Terms)
         self.search_Terms = list(self.search_Terms)
 
