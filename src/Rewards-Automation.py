@@ -4,15 +4,25 @@ from os.path import isfile
 from random import choice, randint
 from re import sub
 from sys import exit, platform
+<<<<<<< HEAD
 from time import sleep
 
 from requests import get
 from selenium import webdriver
 from selenium.common.exceptions import (TimeoutException, UnexpectedAlertPresentException)
+=======
+from time import perf_counter, sleep
+
+from selenium import webdriver
+from selenium.common.exceptions import (NoSuchElementException,
+                                        TimeoutException,
+                                        UnexpectedAlertPresentException)
+>>>>>>> refs/remotes/origin/main
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 
 class chrome_Instances():
     def __init__(self, agent):
@@ -31,7 +41,7 @@ class chrome_Instances():
     
     def chrome_Init(self):
         options = webdriver.ChromeOptions()
-        #options.add_argument('--headless')
+        options.add_argument('--headless')
         options.add_argument(f"user-agent={self.agent}")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-crash-reporter")
@@ -358,7 +368,11 @@ class Microsoft_Rewards_Automation():
             bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
             send_input(f"//input[@type='email']", username, Keys.RETURN)
             send_input(f"//input[@type='password']", password, Keys.RETURN)
-            if bot.current_url != None and 'login' in bot.current_url: send_click(f"//input[@type='button']")
+            try:
+                if bot.current_url != None and 'login' in bot.current_url: send_click(f"//input[@type='button']")
+            except NoSuchElementException: 
+                bot.save_screenshot(f'{username} had problem on device {device}.png')
+                quit()
             action_wait_to_load(f"//input[@type='search']")
         
         def search():
@@ -369,7 +383,7 @@ class Microsoft_Rewards_Automation():
 
         signin()
         search() 
-        
+        print(f"{device} Took >> {perf_counter()} With >> {len(searches)} Searches")
 
     def main(self):
         if __name__ == '__main__':
