@@ -17,7 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class chrome_Instances():
-    def __init__(self, agent, headless = True):
+    def __init__(self, agent, headless = False):
         self.agent = agent
         self.headless = headless
         self.platform_Checker()
@@ -51,12 +51,16 @@ class chrome_Instances():
     def get_Browser(self):
         return self.browser
     
+    def action_key(self, xpath, keys):
+        temp = self.browser.find_element_by_xpath(xpath=xpath)
+        temp.send_keys(keys)
+    
 class Microsoft_Rewards_Automation():
-    def __init__(self):
-        self.accounts_Using = None
+    def __init__(self, username, password):
+        self.accounts_Using = 1
         self.search_Terms = []
-
-        self.data_Management()
+        self.account = username
+        self.password = password
         self.platform_Checker()
         self.search_Term_Generation()
 
@@ -68,33 +72,6 @@ class Microsoft_Rewards_Automation():
             self.os = "Mac"
         if self.platform == "win32":
             self.os = "Windows"
-
-    def data_Management(self):
-        if isfile('src/Support-Files/data.json') != True:
-            try:
-               open("src/Support-Files/data.json", "x")
-            except PermissionError:
-                print("Unable to complete as this program does not have the required permissions")
-                exit()
-            except:
-                print("Unexpected Error Occured")
-                exit()
-            print("\n\n\n  >>  You need to enter usernames and passwords into data.json")
-            print("  >>  An example is in example-json.txtn\n\n\n")
-            exit()
-        else:
-            with open("src/Support-Files/data.json", "r") as document:
-                try:
-                    data = load(document)
-                except:
-                    print("\n\n\n  >>  You need to enter usernames and passwords into data.json")
-                    print("  >>  An example is in example-json.txtn\n\n\n")
-                    exit()
-                self.accounts_Using = len(data)
-                self.account_Data = []
-                for i in range(1, self.accounts_Using+1):
-                    self.account_Data.append(data[f'Account-{i}'][f'Email-{i}'])
-                    self.account_Data.append(data[f'Account-{i}'][f'Password-{i}'])
 
     def search_Term_Generation(self):
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
@@ -352,7 +329,7 @@ class Microsoft_Rewards_Automation():
         def send_click(xpath):
             action_wait_to_load(xpath=xpath)
             bot.find_element_by_xpath(xpath).click()
-        
+
         def bing_click(xpath):
             if 'account' or 'login' or 'live' in bot.current_url:
                 bot.find_element_by_xpath(xpath).click()
@@ -360,6 +337,7 @@ class Microsoft_Rewards_Automation():
 
         def signin():
             bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
+            action_wait_to_load(f"//input[@type='email']")
             send_input(f"//input[@type='email']", username, Keys.RETURN)
             send_input(f"//input[@type='password']", password, Keys.RETURN)
             try:
@@ -371,11 +349,6 @@ class Microsoft_Rewards_Automation():
                 pass
             action_wait_to_load(f"//input[@type='search']")
         
-        '''
-        Error Needs fixing somewhere here stale elements?
-        selenium.common.exceptions.StaleElementReferenceException: Message: stale element reference: element is not attached to the page document
-        '''
-        
         def search():
             for term in searches:
                 bot.get(f"https://www.bing.com/search?q="+term)
@@ -384,22 +357,20 @@ class Microsoft_Rewards_Automation():
 
         signin()
         # search() 
-        print(f"{device} {username} {iter} Took >> {perf_counter()} With >> {len(searches)} Searches")
+        print(f"{device} {username} Took >> {perf_counter()} With >> {len(searches)} Searches")
 
     def main(self):
         if __name__ == '__main__':
             self.data,processes = [],[]
-            for w in range(self.accounts_Using):
-                x = w + 1
-                for y in range(5):
-                    rang = y + 1  
-                    if rang != 4 or rang != 5 : # Desktop
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang), x, rang, False)    
-                    if rang == 4: # Mobile
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, True)
-                    if rang == 5: # Edge
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
-                    self.data.append(temp)
+            for y in range(5):
+                rang = y + 1  
+                if rang != 4 or rang != 5 : # Desktop
+                    temp = (self.account, self.password, self.sts(1,rang), 1, rang, False)    
+                if rang == 4: # Mobile
+                    temp = (self.account, self.password, self.sts(1,rang, mobile=True), 1, rang, True)
+                if rang == 5: # Edge
+                    temp = (self.account, self.password, self.sts(1,rang, mobile=True), 1, rang, False, True)
+                self.data.append(temp)
             for tuple in self.data:
                 y = Process(target=self.chrome_Search_Ctrl,args=tuple)
                 y.start()
@@ -411,5 +382,5 @@ class Microsoft_Rewards_Automation():
         #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
         pass
 
-MSRA = Microsoft_Rewards_Automation()
+MSRA = Microsoft_Rewards_Automation('username', 'password')
 MSRA.main()
