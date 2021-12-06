@@ -35,7 +35,7 @@ class chrome_Instances():
     def chrome_Init(self):
         options = webdriver.ChromeOptions()
         if self.headless:
-            options.add_argument('--headless');
+            options.add_argument('--headless')
         options.add_argument(f"user-agent={self.agent}")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-crash-reporter")
@@ -315,6 +315,7 @@ class Microsoft_Rewards_Automation():
                 return split_Terms[40:60]
         
     def chrome_Search_Ctrl(self, username, password, searches, set, iter, mobile = False, edge = False):
+        self.monk = False
         mobile_Agents = ['Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1']
         edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
@@ -354,9 +355,20 @@ class Microsoft_Rewards_Automation():
             bot.find_element_by_xpath(xpath).click()
         
         def bing_click(xpath):
-            if 'account' or 'login' or 'live' in bot.current_url:
-                bot.find_element_by_xpath(xpath).click()
-                sleep(1)
+            if self.monk == False:
+
+                bot.implicitly_wait(2)
+                if 'account' or 'login' or 'live' in bot.current_url:
+                    bot.implicitly_wait(3)
+                    bot.find_element_by_xpath(xpath).click()
+                bot.implicitly_wait(2)
+                if 'b' == bot.current_url[8]:
+                    self.monk = True
+                    return 
+
+            if self.monk == True:
+                return
+                
 
         def signin():
             bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
@@ -364,18 +376,20 @@ class Microsoft_Rewards_Automation():
             send_input(f"//input[@type='password']", password, Keys.RETURN)
             try:
                 for _ in range(3):
-                    sleep(2)
+                    bot.implicitly_wait(4)
                     if 'login' or 'live' or 'account' in bot.current_url: 
                         bing_click(f"//input[@type='button']")
-            except NoSuchElementException: 
-                pass
+            except:
+                print('Error Detected')
+                bot.save_screenshot(f'{device} {username} {iter}.png')
+
             action_wait_to_load(f"//input[@type='search']")
         
         '''
         Error Needs fixing somewhere here stale elements?
         selenium.common.exceptions.StaleElementReferenceException: Message: stale element reference: element is not attached to the page document
         '''
-        
+
         def search():
             for term in searches:
                 bot.get(f"https://www.bing.com/search?q="+term)
@@ -384,6 +398,7 @@ class Microsoft_Rewards_Automation():
 
         signin()
         # search() 
+        # bot.save_screenshot(f'{device} {username} {iter}.png')
         print(f"{device} {username} {iter} Took >> {perf_counter()} With >> {len(searches)} Searches")
 
     def main(self):
