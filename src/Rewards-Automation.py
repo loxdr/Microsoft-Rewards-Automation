@@ -380,38 +380,40 @@ class Microsoft_Rewards_Automation():
 
         signin()
         # search() 
-        print(f"{device} {username} {iter} Took >> {perf_counter()} With >> {len(searches)} Searches")
 
     def dailies_Handler(self, username, password, iter):
         #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
         pass
 
     def processor(self):
-        # Signin And Search
-        if __name__ == '__main__':
-            self.data,processes = [],[]
-            for w in range(self.accounts_Using):
-                x = w + 1
-                for y in range(5):
-                    rang = y + 1  
-                    if rang != 4 or rang != 5 : # Desktop
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang), x, rang, False)    
-                    if rang == 4: # Mobile
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, True)
-                    if rang == 5: # Edge
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
-                    self.data.append(temp)
-            for tuple in self.data:
-                y = Process(target=self.search_Handler,args=tuple)
-                y.start()
-                processes.append(y)
-            for item in processes:
-                item.join()
+        def search():
+            # Signin And Search
+            if __name__ == '__main__':
+                self.data,processes = [],[]
+                for w in range(self.accounts_Using):
+                    x = w + 1
+                    for y in range(5):
+                        rang = y + 1  
+                        if rang != 4 or rang != 5 : # Desktop
+                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang), x, rang, False)    
+                        if rang == 4: # Mobile
+                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, True)
+                        if rang == 5: # Edge
+                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
+                        self.data.append(temp)
+                for tuple in self.data:
+                    y = Process(target=self.search_Handler,args=tuple)
+                    y.start()
+                    processes.append(y)
+                for item in processes:
+                    item.join()
+        def daily():
+            # Daily Challenges
+            if __name__ == '__main__':
+                pass
         
-        # Daily Challenges
-        if __name__ == '__main__':
-            pass
-        
+        search()
+        daily()
     def notification_Center(self):
         # Point Counter
 
@@ -436,5 +438,4 @@ class Microsoft_Rewards_Automation():
             #          email                 completed all required tasks        completed with no error             signed with no error                searched with no error              daily challenges with no error      generated searches with no error    managed account info with no error   completed within set time          level of points
         webhook_Sender(self.account_Data[0], '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '16,323')
 MSRA = Microsoft_Rewards_Automation()
-#MSRA.processor()
-MSRA.notification_Center()
+MSRA.processor()
