@@ -6,6 +6,7 @@ from re import sub
 from sys import exit, platform
 from time import perf_counter, sleep
 
+from discord_webhook import DiscordWebhook, DiscordEmbed
 from selenium import webdriver
 from selenium.common.exceptions import (NoSuchElementException,
                                         TimeoutException,
@@ -314,7 +315,7 @@ class Microsoft_Rewards_Automation():
             if instance == 3:
                 return split_Terms[40:60]
         
-    def chrome_Search_Ctrl(self, username, password, searches, set, iter, mobile = False, edge = False):
+    def search_Handler(self, username, password, searches, set, iter, mobile = False, edge = False):
         self.monk = False
         mobile_Agents = ['Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1']
         edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
@@ -337,12 +338,19 @@ class Microsoft_Rewards_Automation():
                 bot.refresh()
                 sleep(5)
 
+        def laction_wait(xpath):
+            try:
+                WebDriverWait(bot, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+                return False
+            except (TimeoutException, UnexpectedAlertPresentException):
+                return True
+
         def action_wait_to_go(xpath):
             try:
                 WebDriverWait(bot, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
             except (TimeoutException, UnexpectedAlertPresentException):
                 sleep(5)
-
+        
         def send_input(xpath, input, input2=None):
             action_wait_to_load(xpath=xpath)
             el = bot.find_element_by_xpath(xpath)
@@ -352,44 +360,18 @@ class Microsoft_Rewards_Automation():
 
         def send_click(xpath):
             action_wait_to_load(xpath=xpath)
-            bot.find_element_by_xpath(xpath).click()
-        
-        def bing_click(xpath):
-            if self.monk == False:
-
-                bot.implicitly_wait(2)
-                if 'account' or 'login' or 'live' in bot.current_url:
-                    bot.implicitly_wait(3)
-                    bot.find_element_by_xpath(xpath).click()
-                bot.implicitly_wait(2)
-                if 'b' == bot.current_url[8]:
-                    self.monk = True
-                    return 
-
-            if self.monk == True:
-                return
-                
+            bot.find_element_by_xpath(xpath).click()  
 
         def signin():
             bot.get(f"https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&id=264960&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252f%253ftoWww%253d1%2526redig%253dAF8B0709957742A59F1C53FD761AD3DA%2526wlexpsignin%253d1%26sig%3d044D59BFAF21608C38B14956AEBE617B&wp=MBI_SSL&lc=1033&CSRFToken=cc871eeb-d801-4a42-bcff-4826edd0f1f0&aadredir=1")
             send_input(f"//input[@type='email']", username, Keys.RETURN)
             send_input(f"//input[@type='password']", password, Keys.RETURN)
-            try:
-                for _ in range(3):
-                    bot.implicitly_wait(4)
-                    if 'login' or 'live' or 'account' in bot.current_url: 
-                        bing_click(f"//input[@type='button']")
-            except:
-                print('Error Detected')
-                bot.save_screenshot(f'{device} {username} {iter}.png')
-
-            action_wait_to_load(f"//input[@type='search']")
+            for _ in range(3):
+                sleep(2)
+                x = laction_wait(f"//input[@type='button']")
+                if x: break
+                if x != True: send_click(f"//input[@type='button']")
         
-        '''
-        Error Needs fixing somewhere here stale elements?
-        selenium.common.exceptions.StaleElementReferenceException: Message: stale element reference: element is not attached to the page document
-        '''
-
         def search():
             for term in searches:
                 bot.get(f"https://www.bing.com/search?q="+term)
@@ -398,10 +380,14 @@ class Microsoft_Rewards_Automation():
 
         signin()
         # search() 
-        # bot.save_screenshot(f'{device} {username} {iter}.png')
         print(f"{device} {username} {iter} Took >> {perf_counter()} With >> {len(searches)} Searches")
 
-    def main(self):
+    def dailies_Handler(self, username, password, iter):
+        #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+        pass
+
+    def processor(self):
+        # Signin And Search
         if __name__ == '__main__':
             self.data,processes = [],[]
             for w in range(self.accounts_Using):
@@ -416,15 +402,39 @@ class Microsoft_Rewards_Automation():
                         temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
                     self.data.append(temp)
             for tuple in self.data:
-                y = Process(target=self.chrome_Search_Ctrl,args=tuple)
+                y = Process(target=self.search_Handler,args=tuple)
                 y.start()
                 processes.append(y)
             for item in processes:
                 item.join()
+        
+        # Daily Challenges
+        if __name__ == '__main__':
+            pass
+        
+    def notification_Center(self):
+        # Point Counter
 
-    def dailies(username,password,set,iter):
-        #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-        pass
-
+        # Notification sender ((Discord Webhook, Email) Each includes - (Picture, Points, Status of account))
+        status = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
+        def webhook_Sender(username, complete_Stats, general_Stats, sign_In_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, time_Stats, point_Stats):
+            webhook = DiscordWebhook(url='https://discord.com/api/webhooks/917384579822784513/-R735zyONifkZWkkpa4deStsGu4pkWV4dWQcM9vwBEO8nvSWMJ9px0LacZp-HxdrcYgS')
+            embed = DiscordEmbed(title="Microsoft Rewards Automation", description=f"**Account:** *{username}*", color='ffffff')
+            embed.add_embed_field(name="**Completed:**", value=F"{complete_Stats}", inline=True)
+            embed.add_embed_field(name="**General Status:**", value=F"{general_Stats}", inline=True)
+            embed.add_embed_field(name="**Sign in:**", value=F"{sign_In_Stats}", inline=True)
+            embed.add_embed_field(name="**Searches:**", value=F"{search_Stats}", inline=True)
+            embed.add_embed_field(name="**Daily Challenges:**", value=F"{daily_Challenge_Stats}", inline=True)
+            embed.add_embed_field(name="**Search Term Generaton:**", value=F"{search_Gen_Stats}", inline=True)
+            embed.add_embed_field(name="**Data & File Management:**", value=F"{data_File_Manag_Stats}", inline=True)
+            embed.add_embed_field(name="**Completed task in set time:**", value=F"{time_Stats}", inline=True)
+            embed.add_embed_field(name="**Current Points:**", value=F"{point_Stats}", inline=True)
+            embed.set_footer(text="Status Update")
+            embed.set_timestamp()
+            webhook.add_embed(embed)
+            response = webhook.execute()
+            #          email                 completed all required tasks        completed with no error             signed with no error                searched with no error              daily challenges with no error      generated searches with no error    managed account info with no error   completed within set time          level of points
+        webhook_Sender(self.account_Data[0], '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '16,323')
 MSRA = Microsoft_Rewards_Automation()
-MSRA.main()
+#MSRA.processor()
+MSRA.notification_Center()
