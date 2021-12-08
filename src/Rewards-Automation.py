@@ -316,20 +316,19 @@ class Microsoft_Rewards_Automation():
                 return split_Terms[40:60]
         
     def search_Handler(self, username, password, searches, set, iter, mobile = False, edge = False):
-        self.monk = False
         mobile_Agents = ['Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1']
         edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
         if mobile == True:
             device = 'mobile'
-            _ = chrome_Instances(choice(mobile_Agents))
+            chrome = chrome_Instances(choice(mobile_Agents))
         if edge == True:
             device = 'edge'
-            _ = chrome_Instances(choice(edge_Agents))
+            chrome = chrome_Instances(choice(edge_Agents))
         if edge != True and mobile != True:
             device = 'desktop'
-            _ = chrome_Instances(choice(desktop_Agents))
-        bot = _.get_Browser()
+            chrome = chrome_Instances(choice(desktop_Agents))
+        bot = chrome.get_Browser()
         
         def action_wait_to_load(xpath):
             try:
@@ -379,17 +378,23 @@ class Microsoft_Rewards_Automation():
                 sleep(3)
 
         signin()
-        # search() 
+        search() 
 
-    def dailies_Handler(self, username, password, iter):
+    def dailies_Handler(self, username, password, set, iter):
+        desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
+        chrome = chrome_Instances(choice(desktop_Agents))
+        bot = chrome.get_Browser()
+        
+        bot.get('https://google.com')
+        
         #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-        pass
+        print(set,iter)
 
     def processor(self):
-        def search():
+        def searches():
             # Signin And Search
             if __name__ == '__main__':
-                self.data,processes = [],[]
+                self.data_search,processes = [],[]
                 for w in range(self.accounts_Using):
                     x = w + 1
                     for y in range(5):
@@ -400,20 +405,34 @@ class Microsoft_Rewards_Automation():
                             temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, True)
                         if rang == 5: # Edge
                             temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
-                        self.data.append(temp)
-                for tuple in self.data:
+                        self.data_search.append(temp)
+                for tuple in self.data_search:
                     y = Process(target=self.search_Handler,args=tuple)
                     y.start()
                     processes.append(y)
                 for item in processes:
                     item.join()
-        def daily():
+
+        def dailies():
             # Daily Challenges
             if __name__ == '__main__':
-                pass
-        
-        search()
-        daily()
+                self.data_daily,processes = [], []
+                for w in range(self.accounts_Using):
+                    x = w + 1
+                    for y in range(3):
+                        rang = y + 1  
+                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], w, rang)
+                        self.data_daily.append(temp)
+                for tuple in self.data_daily:
+                    y = Process(target=self.dailies_Handler,args=tuple)
+                    y.start()
+                    processes.append(y)
+                for item in processes:
+                    item.join()
+    
+        # searches()
+        dailies()
+
     def notification_Center(self):
         # Point Counter
 
