@@ -18,7 +18,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class chrome_Instances():
-    def __init__(self, agent, headless = True):
+    def __init__(self, agent, headless = False):
         self.agent = agent
         self.headless = headless
         self.platform_Checker()
@@ -385,10 +385,68 @@ class Microsoft_Rewards_Automation():
         chrome = chrome_Instances(choice(desktop_Agents))
         bot = chrome.get_Browser()
         
-        bot.get('https://google.com')
+        def action_wait_to_load(xpath):
+            try:
+                WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+            except (TimeoutException, UnexpectedAlertPresentException):
+                bot.refresh()
+                sleep(5)
+
+        def laction_wait(xpath):
+            try:
+                WebDriverWait(bot, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+                return False
+            except (TimeoutException, UnexpectedAlertPresentException):
+                return True
+
+        def action_wait_to_go(xpath):
+            try:
+                WebDriverWait(bot, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+            except (TimeoutException, UnexpectedAlertPresentException):
+                sleep(5)
         
+        def send_input(xpath, input, input2=None):
+            action_wait_to_load(xpath=xpath)
+            el = bot.find_element_by_xpath(xpath)
+            el.send_keys(input)
+            if input2 != None:
+                el.send_keys(input2)
+
+        def send_click(xpath):
+            action_wait_to_load(xpath=xpath)
+            bot.find_element_by_xpath(xpath).click()  
+
+        def sign_In():
+            bot.get(f'https://rewards.microsoft.com/Signin?idru=%2F')
+            send_input(f"//input[@type='email']", username, Keys.RETURN)
+            send_input(f"//input[@type='password']", password, Keys.RETURN)
+            for _ in range(3):
+                sleep(2)
+                x = laction_wait(f"//input[@type='button']")
+                if x: break
+                if x != True: send_click(f"//input[@type='button']")
+            for _ in range(2):
+                x = laction_wait(f'/html/body/div[5]/div[2]/button')
+                if x: break
+                if x != True: send_click(f'/html/body/div[5]/div[2]/button')
+
+        def scouter():
+            open_offers = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+            for i in open_offers:
+                print(i)
+            # if open_offers:
+            #     # get common parent element of open_offers
+            #     parent_elements = [open_offer.find_element_by_xpath('..//..//..//..') for open_offer in open_offers]
+            #     # get points links from parent, # finds ng-transclude descendant of selected node
+            #     offer_links = [parent.find_element_by_xpath('descendant::ng-transclude') for parent in parent_elements]
+            # for link in offer_links:
+            #         bot.get(link)
+            # else:
+            #     print('Completed all dailies!')
+        
+        sign_In()
+        scouter()
         #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-        print(set,iter)
 
     def processor(self):
         def searches():
