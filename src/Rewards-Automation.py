@@ -416,6 +416,14 @@ class Microsoft_Rewards_Automation():
             action_wait_to_load(xpath=xpath)
             bot.find_element_by_xpath(xpath).click()  
 
+        def switch_to(window = -1):
+            handles = bot.window_handles
+            bot.switch_to_window(handles[window])
+
+        def switch_back(window = 0):
+            handles = bot.window_handles
+            bot.switch_to_window(handles[window])
+
         def sign_In():
             bot.get(f'https://rewards.microsoft.com/Signin?idru=%2F')
             send_input(f"//input[@type='email']", username, Keys.RETURN)
@@ -430,10 +438,28 @@ class Microsoft_Rewards_Automation():
                 if x: break
                 if x != True: send_click(f'/html/body/div[5]/div[2]/button')
 
-        def scouter():
-            open_offers = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-            for i in open_offers:
-                print(i)
+        def scout():
+            dailies = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+            if dailies:
+                upper_elements = [new.find_element_by_xpath('..//..//..//..') for new in dailies]
+                links = [upper.find_element_by_xpath('div[3]/span') for upper in upper_elements]
+                for link in links:
+                    print('Detected offer!')
+                    link.click()
+                    switch_to()
+                    sleep(1)
+                    switch_back()
+                    sleep(1)
+                    switch_to()
+                    sleep(1)
+                    bot.close()
+                    switch_back
+
+                    
+            
+            # open_offers = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+            # for i in open_offers:
+            #     print(i)
             # if open_offers:
             #     # get common parent element of open_offers
             #     parent_elements = [open_offer.find_element_by_xpath('..//..//..//..') for open_offer in open_offers]
@@ -445,7 +471,7 @@ class Microsoft_Rewards_Automation():
             #     print('Completed all dailies!')
         
         sign_In()
-        scouter()
+        scout()
         #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
 
     def processor(self):
