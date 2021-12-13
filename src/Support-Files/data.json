@@ -1,7 +1,7 @@
 {
-    "Account-1":{"Email-1": "example@email.com", "Password-1": "example1"},
-    "Account-2":{"Email-2": "example@email.com", "Password-2": "example2"},
-    "Account-3":{"Email-3": "example@email.com", "Password-3": "example3"},
-    "Account-4":{"Email-4": "example@email.com", "Password-4": "example4"},
-    "Account-5":{"Email-5": "example@email.com", "Password-5": "example5"}
+    "Account-1":{"Email-1": "example@example.com", "Password-1": "example1"},
+    "Account-2":{"Email-2": "example@example.com", "Password-2": "example2"},
+    "Account-3":{"Email-3": "example@example.com", "Password-3": "example3"},
+    "Account-4":{"Email-4": "example@example.com", "Password-4": "example4"},
+    "Account-5":{"Email-5": "example@example.com", "Password-5": "example5"}
 }
