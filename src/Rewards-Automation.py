@@ -454,7 +454,7 @@ class Microsoft_Rewards_Automation():
                     sleep(1)
                     bot.close()
                     switch_back
-
+            #Commit
                     
             
             # open_offers = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
