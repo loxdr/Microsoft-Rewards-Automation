@@ -447,13 +447,13 @@ class Microsoft_Rewards_Automation():
                     print('Detected offer!')
                     link.click()
                     switch_to()
-                    sleep(1)
+                    sleep(5)
                     switch_back()
-                    sleep(1)
+                    sleep(5)
                     switch_to()
-                    sleep(1)
+                    sleep(5)
                     bot.close()
-                    switch_back
+                    switch_back()
             #Commit
                     
             
