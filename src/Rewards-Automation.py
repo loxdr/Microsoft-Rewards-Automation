@@ -4,13 +4,15 @@ from os.path import isfile
 from random import choice, randint
 from re import sub
 from sys import exit, platform
-from time import perf_counter, sleep
+from time import perf_counter, sleep, time
 
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from selenium import webdriver
-from selenium.common.exceptions import (NoSuchElementException,
-                                        TimeoutException,
-                                        UnexpectedAlertPresentException)
+from selenium.common.exceptions import (TimeoutException,
+                                        UnexpectedAlertPresentException,
+                                        ElementClickInterceptedException,
+                                        ElementNotVisibleException,
+                                        ElementNotInteractableException)
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -56,7 +58,8 @@ class Microsoft_Rewards_Automation():
     def __init__(self):
         self.accounts_Using = None
         self.search_Terms = []
-
+        self.daily_links = []
+        
         self.data_Management()
         self.platform_Checker()
         self.search_Term_Generation()
@@ -71,6 +74,17 @@ class Microsoft_Rewards_Automation():
             self.os = "Windows"
 
     def data_Management(self):
+        def error(string):
+            print("\033[1m" + f"\n  >> {string}" + "\033[0m")
+            sleep(1)
+            print("  1) Copy and Paste the template found in \"example-json.txt\" to the Generated File")
+            sleep(1.5)
+            print("  2) Fill in required information")
+            sleep(1)
+            print("  3) Relaunch this program")
+            sleep(1)
+            exit()
+
         if isfile('src/Support-Files/data.json') != True:
             try:
                open("src/Support-Files/data.json", "x")
@@ -80,23 +94,22 @@ class Microsoft_Rewards_Automation():
             except:
                 print("Unexpected Error Occured")
                 exit()
-            print("\n\n\n  >>  You need to enter usernames and passwords into data.json")
-            print("  >>  An example is in example-json.txtn\n\n\n")
-            exit()
+            error('Steps to run this bot')     
         else:
             with open("src/Support-Files/data.json", "r") as document:
                 try:
                     data = load(document)
                 except:
-                    print("\n\n\n  >>  You need to enter usernames and passwords into data.json")
-                    print("  >>  An example is in example-json.txtn\n\n\n")
-                    exit()
-                self.accounts_Using = len(data)
-                self.account_Data = []
-                for i in range(1, self.accounts_Using+1):
-                    self.account_Data.append(data[f'Account-{i}'][f'Email-{i}'])
-                    self.account_Data.append(data[f'Account-{i}'][f'Password-{i}'])
-
+                    error('Steps to run this bot')
+                try:
+                    self.accounts_Using = len(data)
+                    self.account_Data = []
+                    for i in range(1, self.accounts_Using+1):
+                        self.account_Data.append(data[f'Account-{i}'][f'Email-{i}'])
+                        self.account_Data.append(data[f'Account-{i}'][f'Password-{i}'])
+                except:
+                    error("Make sure to follow the structure of the template")
+                    
     def search_Term_Generation(self):
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
@@ -399,6 +412,27 @@ class Microsoft_Rewards_Automation():
             except (TimeoutException, UnexpectedAlertPresentException):
                 return True
 
+        def find_id(obj):
+            return bot.find_elements_by_id(obj)
+
+        def find_class(obj):
+            return bot.find_elements_by_class_name(obj)
+
+        def wait_until_visible(by_, selector, time_to_wait=10):
+            start_time = time()
+            while (time() - start_time) < time_to_wait:
+                if bot.find_elements(by=by_, value=selector):
+                    return True
+                bot.refresh()  # for other checks besides points url
+                sleep(2)
+            return False
+
+        def click_id(obj):
+            try:
+                bot.find_element_by_id(obj).click()
+            except(ElementNotVisibleException, ElementClickInterceptedException, ElementNotInteractableException):
+                print('Click by ID: element not visible or clickable')
+            
         def action_wait_to_go(xpath):
             try:
                 WebDriverWait(bot, 10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
@@ -437,42 +471,37 @@ class Microsoft_Rewards_Automation():
                 x = laction_wait(f'/html/body/div[5]/div[2]/button')
                 if x: break
                 if x != True: send_click(f'/html/body/div[5]/div[2]/button')
+            sleep(2)
+            bot.refresh()
 
-        def scout():
+        def task_Function():
             dailies = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-            if dailies:
-                upper_elements = [new.find_element_by_xpath('..//..//..//..') for new in dailies]
-                links = [upper.find_element_by_xpath('div[3]/span') for upper in upper_elements]
-                for link in links:
-                    print('Detected offer!')
-                    link.click()
-                    switch_to()
-                    sleep(5)
-                    switch_back()
-                    sleep(5)
-                    switch_to()
-                    sleep(5)
-                    bot.close()
-                    switch_back()
-            #Commit
-                    
-            
-            # open_offers = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-            # for i in open_offers:
-            #     print(i)
-            # if open_offers:
-            #     # get common parent element of open_offers
-            #     parent_elements = [open_offer.find_element_by_xpath('..//..//..//..') for open_offer in open_offers]
-            #     # get points links from parent, # finds ng-transclude descendant of selected node
-            #     offer_links = [parent.find_element_by_xpath('descendant::ng-transclude') for parent in parent_elements]
-            # for link in offer_links:
-            #         bot.get(link)
-            # else:
-            #     print('Completed all dailies!')
-        
+            for link in dailies:
+                link.click()
+                switch_to()
+                sleep(5)
+                if find_class('simpleSignIn'):
+                    print('Not Signed In')
+                    bot.refresh()
+                    sleep(25)
+                if find_id('btoption0'):
+                    print('Daily Poll Found')
+                elif find_id('rqStartQuiz'):
+                    click_id('rqStartQuiz')
+                    if find_id('rqAnswerOptionNum0'):
+                        print('Drag and Drop Quiz identified')
+                    elif find_id('rqAnswerOption0'):
+                        print('Lightning Quiz identified')
+                elif find_class('wk_Circle'):
+                    print('Click Quiz identified')
+                else:
+                    print('Generic Explore identified')
+                sleep(4)
+                bot.close()
+                switch_back()
+            print('Completed all dailies')
         sign_In()
-        scout()
-        #open_offers = self.browser.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+        task_Function()
 
     def processor(self):
         def searches():
@@ -503,7 +532,7 @@ class Microsoft_Rewards_Automation():
                 self.data_daily,processes = [], []
                 for w in range(self.accounts_Using):
                     x = w + 1
-                    for y in range(3):
+                    for y in range(1):
                         rang = y + 1  
                         temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], w, rang)
                         self.data_daily.append(temp)
@@ -540,5 +569,6 @@ class Microsoft_Rewards_Automation():
             response = webhook.execute()
             #          email                 completed all required tasks        completed with no error             signed with no error                searched with no error              daily challenges with no error      generated searches with no error    managed account info with no error   completed within set time          level of points
         webhook_Sender(self.account_Data[0], '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '<:greencheck:854879476693467136>', '16,323')
+
 MSRA = Microsoft_Rewards_Automation()
 MSRA.processor()
