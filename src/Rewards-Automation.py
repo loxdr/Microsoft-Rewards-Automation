@@ -452,11 +452,11 @@ class Microsoft_Rewards_Automation():
 
         def switch_to(window = -1):
             handles = bot.window_handles
-            bot.switch_to_window(handles[window])
+            bot.switch_to.window(handles[window])
 
         def switch_back(window = 0):
             handles = bot.window_handles
-            bot.switch_to_window(handles[window])
+            bot.switch_to.window(handles[window])
 
         def sign_In():
             bot.get(f'https://rewards.microsoft.com/Signin?idru=%2F')
@@ -500,6 +500,7 @@ class Microsoft_Rewards_Automation():
                 bot.close()
                 switch_back()
             print('Completed all dailies')
+                  
         sign_In()
         task_Function()
 
