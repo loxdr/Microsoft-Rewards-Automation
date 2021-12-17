@@ -22,6 +22,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
+
 class chrome_Instances():
     def __init__(self, agent, headless = False):
         self.agent = agent
@@ -47,11 +48,11 @@ class chrome_Instances():
         options.add_argument("--disable-crash-reporter")
         options.add_argument("--log-level=3")
         if self.os == 'Windows':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/Chrome-Files/chromedriver.exe", options=options)
+            self.browser = webdriver.Chrome(executable_path=r"Chromedriver/chromedriver.exe", options=options)
         if self.os == 'Mac':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/Chrome-Files/chromedriver", options=options)
+            self.browser = webdriver.Chrome(executable_path=r"Chromedriver/chromedriver", options=options)
         if self.os == 'Linux':
-            self.browser = webdriver.Chrome(executable_path=r"src/Support-Files/Chrome-Files/chromedriver-linux", options=options)
+            self.browser = webdriver.Chrome(executable_path=r"Chromedriver/chromedriver", options=options)
         return self.browser
     
     def get_Browser(self):
@@ -59,16 +60,24 @@ class chrome_Instances():
     
 class Microsoft_Rewards_Automation():
     def __init__(self):
-        self.accounts_Using = None
         self.search_Terms = []
         self.daily_links = []
-        
-        self.data_Management()
+        self.chromedriver_Version = None
+        self.accounts_Using = None
+        self.accounts_Using = 0
+        self.search_clients = 5
+        self.daily_clients = 1
+
         self.platform_Checker()
+        self.data_Management()
         self.chrome_Management()
         # self.search_Term_Generation()
 
+    # Program Init
     def platform_Checker(self):
+        """
+            Checks what the platform is
+        """
         self.platform = platform
         if self.platform == "linux" or self.platform == "linux2":
             self.os = "Linux"
@@ -77,28 +86,15 @@ class Microsoft_Rewards_Automation():
         elif self.platform == "win32":
             self.os = "Windows"
 
-    def chrome_Management(self):
-        print('Attempting to delete chromedriver')
-        try: shutil.rmtree('Chromedriver')
-        except: print('Failed Deleting chromedriver')
-        print('Remaking chromedriver directory')
-        os.mkdir('Chromedriver')
-        print('Reinstalling latest version of chromedriver')
-        if self.os == "Linux":
-            res = download_driver(r'Chromedriver/chromedriver', self.os)
-        if self.os == "Mac":
-            res = download_driver(r'Chromedriver/chromedriver', self.os)
-        if self.os == "Windows":
-            res = download_driver(r'Chromedriver\chromedriver.exe', self.os)
-        if res:
-            print('Succesfully reinstalled Chromedriver')
-
     def data_Management(self):
-        def error(string):
+        """
+            Reads data.json file and checks if its formatted for proper operation
+            If no data.json file present then it creates new file with template inside
+        """
+        def error(string = 'Steps to run this bot'):
             print("\033[1m" + f"\n  >> {string}" + "\033[0m")
             sleep(1)
-            x = "\033[1m" + "data.json" + "\033[0m"
-            print(f"  1) Open the newly generated {x} file")
+            print("  1) Open the newly generated data.json file")
             sleep(1.5)
             print("  2) Fill in as many accounts as you like")
             sleep(1)
@@ -108,33 +104,70 @@ class Microsoft_Rewards_Automation():
             sleep(1)
             print("  3) Relaunch this program")
             exit()
-
+        print("Checking if data.json exists")
         if isfile('data.json') != True:
             try:
-               open("data.json", "x")
+                print('Doesnt exist. Creating File')
+                with open("data.json", "w") as f:
+                    print('Created file')
+                    template = {
+                        "MS Rewards Accounts":[
+                            {"Email": "email@example.com", "Password": "example"},
+                            {"Email": "email@example.com", "Password": "example"},
+                            {"Email": "email@example.com", "Password": "example"}],
+                        "General Config":[
+                            {"Discord_Webhook_URL": ""}]}
+                    json.dump(template, f, indent=4)
             except PermissionError:
-                print("Unable to complete as this program does not have the required permissions")
+                print("Unable to create file: Dont have required permissions")
                 exit()
-            error('Steps to run this bot')     
+            error()
         else:
+            print('File exists')
             with open("data.json") as r:
                 try:
-                    data = json.load(r)
-                except PermissionError:
-                    print("Unable to complete as this program does not have the required permissions")
-                    exit()
+                    self.json_File = json.load(r)
+                    print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
+                    for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
+                    self.accounts_Using = len(self.json_File["MS Rewards Accounts"])
                 except:
-                    error("Make sure to follow the exact structure")
-                try:
-                    self.accounts_Using = len(data)
-                    self.account_Data = []
-                    for i in range(1, self.accounts_Using+1):
-                        self.account_Data.append(data[f'Account-{i}'][f'Email-{i}'])
-                        self.account_Data.append(data[f'Account-{i}'][f'Password-{i}'])
-                except:
-                    error("Make sure to follow the exact structure")
-
-    # Search Config                
+                    print('File formatted incorrectly')
+                    error('Make sure to format the json file correctly')
+    
+    def chrome_Management(self):
+        """
+            Deletes all Chromedriver files and Reinstalls latest version
+        """
+        print('Attempting to delete Chromedriver')
+        try: 
+            shutil.rmtree('Chromedriver')
+            print('Deleted Chromedriver')
+        except: 
+            print('Failed Deleting Chromedriver, check permissions or anti-virus')
+            exit()
+        print('Rebuilding Chromedriver Directory')
+        try:
+            os.mkdir('Chromedriver')
+            print('Rebuilt Chromedriver Directory')
+        except:
+            print('Failed Creating Chromedriver Directory, check permissions or anti-virus')
+            exit()
+        print('Reinstalling latest version of Chromedriver')
+        if self.os == "Linux":
+            res = download_driver(r'Chromedriver/chromedriver', self.os)
+        if self.os == "Mac":
+            res = download_driver(r'Chromedriver/chromedriver', self.os)
+        if self.os == "Windows":
+            res = download_driver(r'Chromedriver\chromedriver.exe', self.os)
+        if res[0]:
+            print('Succesfully reinstalled Chromedriver')
+            print(f'Using version {res[1]} of Chromedriver')
+            self.chromedriver_Version = res[1]
+        else:
+            print("Failed installing Chromedriver, check permissions or anti-virus")
+    # Program Init
+         
+    # Search              
     def search_Term_Generation(self):
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
@@ -417,6 +450,7 @@ class Microsoft_Rewards_Automation():
 
         signin()
         search() 
+    # Search
 
     # Daily Challenges
     def dailies_Handler(self, username, password, set, iter):
@@ -446,6 +480,14 @@ class Microsoft_Rewards_Automation():
         
         def find_css(selector):
             return bot.find_elements_by_css_selector(selector)
+
+        def click_class(selector):
+            try:
+                bot.find_element_by_class_name(selector).click()
+            except (ElementNotVisibleException, ElementClickInterceptedException, ElementNotInteractableException):
+                print(f'Send key by class to {selector} element not visible or clickable.')
+            except WebDriverException:
+                print(f'Webdriver Error for send key by class to {selector} object')
 
         def wait_until_visible(by_, selector, time_to_wait=10):
             start_time = time()
@@ -516,100 +558,106 @@ class Microsoft_Rewards_Automation():
         # Different Task Operations
         def task_Explore():
             try:
+                # select html to send commands to
                 html = bot.find_element_by_tag_name('html')
-                for _ in range(3):
+                # scroll up and down to trigger points
+                for i in range(3):
                     html.send_keys(Keys.END)
+                    sleep(0.3)
                     html.send_keys(Keys.HOME)
+                    sleep(0.3)
+                # exit to main window
                 close_Window()
                 switch_back()
-                print('Completed Explore Task')
             except TimeoutException:
-                print('Explore Daily Timeout Exception')
+                print('Explore Daily Timeout Exception.')
             except (ElementNotVisibleException, ElementClickInterceptedException, ElementNotInteractableException):
-                print('Element not clickable or visible')
+                print('Element not clickable or visible.')
             except WebDriverException:
-                print('Webdriver Error')
+                print('Error.')
 
         def task_Poll():
-            try:
-                sleep(3)
-                choices = ['btoption0', 'btoption1']
-                click_id(choice(choices))
-                sleep(3)
-                close_Window()
-                switch_back()
-                print('Completed Poll Task')
-            except TimeoutException:
-                print('Explore Daily Timeout Exception')
-            except (ElementNotVisibleException, ElementClickInterceptedException, ElementNotInteractableException):
-                print('Element not clickable or visible')
-            except WebDriverException:
-                print('Webdriver Error')
+            sleep(0.5)
+            wait_until_visible(By.ID, 'btoption0', 10)
+            choices = ['btoption0', 'btoption1']  # new poll format
+            click_id(choice(choices))
+            sleep(0.1) #DONT DELETE!
+            # close window, switch to main
+            close_Window()
+            switch_back()
 
         def task_Drag_Drop():
-            for _ in range(75):
+            for i in range(100):
                 try:
+                    # find possible solution buttons
                     drag_option = find_class('rqOption')
+                    # find any answers marked correct with correctAnswer tag
                     right_answers = find_class('correctAnswer')
+                    # remove right answers from possible choices
                     if right_answers:
                         drag_option = [x for x in drag_option if x not in right_answers]
                     if drag_option:
+                        # select first possible choice and remove from options
                         choice_a = choice(drag_option)
                         drag_option.remove(choice_a)
+                        # select second possible choice from remaining options
                         choice_b = choice(drag_option)
                         ActionChains(bot).drag_and_drop(choice_a, choice_b).perform()
                 except (WebDriverException, TypeError):
-                    print('Unknown Error')
+                    print('Unknown Error.')
                     continue
                 finally:
-                    sleep(3)
+                    sleep(0.1)
                     if find_id('quizCompleteContainer'):
                         break
-            sleep(3)
-            find_css('.cico.btCloseBack')[0].click()
-            sleep(3)
+            # close the quiz completion splash
+            sleep(0.1)
+            quiz_complete = find_css('.cico.btCloseBack')
+            if quiz_complete:
+                quiz_complete[0].click()
+            sleep(0.1)
             close_Window()
             switch_back()
-            print('Completed Drag Drop Task')
 
         def task_Lightning():
             for question_round in range(10):
                 print(f'Round# {question_round}')
-                for i in range(4):
-                    click_choices = find_class('rqOption')
-                    if click_choices:
-                        i = click_choices[i]
-                        if i.is_displayed():
+                if find_id('rqAnswerOption0'):
+                    for i in range(10):
+                        if find_id(f'rqAnswerOption{i}'):
+                            bot.execute_script(f"document.querySelectorAll('#rqAnswerOption{i}').forEach(el=>el.click());")
                             print(f'Clicked {i}')
-                            i.click()
-                            sleep(2)
-                sleep(3)
+                sleep(1)
                 if find_id('quizCompleteContainer'):
                     break
-            find_css('.cico.btCloseBack')[0].click()
-            sleep(3)
+            # close the quiz completion splash
+            quiz_complete = find_css('.cico.btCloseBack')
+            if quiz_complete:
+                quiz_complete[0].click()
             close_Window()
             switch_back()
-            print('Completed Lightning Task')
 
         def task_Click():
-            for _ in range(10):
+            for i in range(10):
                 if find_css('.cico.btCloseBack'):
                     find_css('.cico.btCloseBack')[0].click()[0].click()
-                    print('Quiz popped up during a click quiz')
+                    print('Quiz popped up during a click quiz...')
                 choices = find_class('wk_Circle')
+                # click answer
                 if choices:
                     choice(choices).click()
-                    sleep(3)
-                wait_until_clickable(By.ID, 'check', 10)
-                click_id('check')
-                sleep(3)
-                if find_css('span[class="rw_icon"]'):
+                # click the 'next question' button
+                wait_until_clickable(By.CLASS_NAME, 'wk_buttons', 10)
+                # click_by_id('check')
+                click_class('wk_buttons')
+                # if the green check mark reward icon is visible, end loop
+                sleep(0.1)
+                if find_css('span[class="wk_SummaryHashTag"]'):
                     break
             close_Window()
             switch_back()
-            print('Completed Click Task')
-        
+        # Different Task Operations
+
         def test_Sign_In():
                 sleep(1)
                 sign_in_msg = find_class('simpleSignIn')
@@ -621,8 +669,7 @@ class Microsoft_Rewards_Automation():
 
         def close_Window():
             if bot.title == 'Rewards Dashboard':
-                print('Advanced Anti-Error Detected and Disabled an Error')
-                return False
+                pass
             else:
                 bot.close()
 
@@ -657,50 +704,64 @@ class Microsoft_Rewards_Automation():
                   
         sign_In()
         task_Function()
+    # Daily Challenges
+
+    # Stat Generator
+    def stat_Generator(self, username, password):
+        print(f"Generating point levels: {username}")
+    # Stat Generator
 
     # Main Function
-    def processor(self):
+    def processor(self, Searches = True, Dailies = True):
         def searches():
-            # Signin And Search
-            if __name__ == '__main__':
-                self.data_search,processes = [],[]
-                for w in range(self.accounts_Using):
-                    x = w + 1
-                    for y in range(5):
-                        rang = y + 1  
-                        if rang != 4 or rang != 5 : # Desktop
-                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang), x, rang, False)    
-                        if rang == 4: # Mobile
-                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, True)
-                        if rang == 5: # Edge
-                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
-                        self.data_search.append(temp)
-                for tuple in self.data_search:
-                    y = Process(target=self.search_Handler,args=tuple)
-                    y.start()
-                    processes.append(y)
-                for item in processes:
-                    item.join()
+            # Main
+            search_data, processes = [],[]
+            for w in range(self.accounts_Using):
+                x = w + 1
+                stat_Data = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
+                p = Process(target=self.stat_Generator,args=stat_Data)
+                p.start()
+                p.join()
+                for y in range(self.search_clients):
+                    rang = y + 1  
+                    if rang != 4 or rang != 5 : # Desktop
+                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang), x, rang, False)    
+                    if rang == 4: # Mobile
+                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, True)
+                    if rang == 5: # Edge
+                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, False, True)
+                    search_data.append(temp)
+            for tuple in search_data:
+                y = Process(target=self.search_Handler,args=tuple)
+                y.start()
+                processes.append(y)
+            for item in processes:
+                item.join()
 
         def dailies():
+            # Count Points
+
             # Daily Challenges
-            if __name__ == '__main__':
-                self.data_daily,processes = [], []
-                for w in range(self.accounts_Using):
-                    x = w + 1
-                    for y in range(1):
-                        rang = y + 1  
-                        temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], w, rang)
-                        self.data_daily.append(temp)
-                for tuple in self.data_daily:
-                    y = Process(target=self.dailies_Handler,args=tuple)
-                    y.start()
-                    processes.append(y)
-                for item in processes:
-                    item.join()
+            daily_data,processes = [], []
+            for w in range(self.accounts_Using):
+                stat_Data = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
+                p = Process(target=self.stat_Generator,args=stat_Data)
+                print('Start')
+                p.start()
+                p.join()
+                for y in range(self.daily_clients):
+                    rang = y + 1  
+                    temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], w, rang)
+                    daily_data.append(temp)
+            for tuple in daily_data:
+                y = Process(target=self.dailies_Handler,args=tuple)
+                y.start()
+                processes.append(y)
+            for item in processes:
+                item.join()
     
-        # searches()
-        dailies()
+        if Searches: searches()
+        if Dailies: dailies()
 
     # Logging, Debug and Output
     def notification_Center(self):
@@ -726,8 +787,6 @@ class Microsoft_Rewards_Automation():
             webhook.add_embed(embed)
             response = webhook.execute()
 
-            #          email                 completed all required tasks        completed with no error             signed with no error                searched with no error              daily challenges with no error      generated searches with no error    managed account info with no error   completed within set time          level of points
-        webhook_Sender(self.account_Data[0], status[0], status[0], status[0], status[0], status[0], status[0], status[0], status[0], str(points))
-
-MSRA = Microsoft_Rewards_Automation()
-MSRA.processor()
+if __name__ == '__main__':
+    MSRA = Microsoft_Rewards_Automation()
+    MSRA.processor(Searches = False, Dailies = True)

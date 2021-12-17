@@ -36,5 +36,5 @@ def download_driver(driver_path, system):
     os.chmod(driver_path, 0o755)
     # way to note which chromedriver version is installed
     open(os.path.join(os.path.dirname(driver_path),
-                      "{}.txt".format(latest_version)), "w").close()
-    return True
+                      "{}".format(latest_version)), "w").close()
+    return True, latest_version
