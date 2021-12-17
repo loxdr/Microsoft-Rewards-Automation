@@ -102,6 +102,8 @@ class Microsoft_Rewards_Automation():
             sleep(1)
             print("  2b) It is shown in the readme and in the json file")
             sleep(1)
+            print("  2c) Make sure to include commas in the correct areas")
+            sleep(1)
             print("  3) Relaunch this program")
             exit()
         print("Checking if data.json exists")
@@ -123,16 +125,35 @@ class Microsoft_Rewards_Automation():
                 exit()
             error()
         else:
+            jam = False
             print('File exists')
             with open("data.json") as r:
                 try:
                     self.json_File = json.load(r)
+                    for p in range(3):
+                        x = self.json_File["MS Rewards Accounts"][p]['Email']
+                        if x == 'email@example.com':
+                            jam = True
+                            error("Make sure to fill in the json file")
                     print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
                     for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
                     self.accounts_Using = len(self.json_File["MS Rewards Accounts"])
                 except:
-                    print('File formatted incorrectly')
-                    error('Make sure to format the json file correctly')
+                    if jam:
+                        exit()
+                    else:
+                        print('File formatted incorrectly')
+                        with open("data.json", "w") as f:
+                            template = {
+                                "MS Rewards Accounts":[
+                                    {"Email": "email@example.com", "Password": "example"},
+                                    {"Email": "email@example.com", "Password": "example"},
+                                    {"Email": "email@example.com", "Password": "example"}],
+                                "General Config":[
+                                    {"Discord_Webhook_URL": ""}]}
+                            json.dump(template, f, indent=4)
+                        error('Make sure to format the json file correctly')
+                    
     
     def chrome_Management(self):
         """
