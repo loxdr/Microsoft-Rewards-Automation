@@ -1,0 +1,33 @@
+{
+    "MS Rewards Accounts": [
+        {
+            "Email": "bingbot1@gmail.com",
+            "Password": "BingBong"
+        },
+        {
+            "Email": "bingbot2@gmail.com",
+            "Password": "BingBong"
+        },
+        {
+            "Email": "bingbot3@gmail.com",
+            "Password": "BingBong"
+        },
+        {
+            "Email": "bingbot4@gmail.com",
+            "Password": "BingBong"
+        },
+        {
+            "Email": "bingbot5@gmail.com",
+            "Password": "BingBong"
+        },
+        {
+            "Email": "bingbot6@gmail.com",
+            "Password": "BingBong"
+        }
+    ],
+    "General Config": [
+        {
+            "Discord_Webhook_URL": "https://discordapp.com/api/webhooks/921234524234524205/tnDubnsdabrym6_eD7sG5Fihaasdg78322dDsd_ma7xYF2U750u6BY3jDjp"
+        }
+    ]
+}

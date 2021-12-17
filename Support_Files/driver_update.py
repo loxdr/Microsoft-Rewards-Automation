@@ -37,4 +37,4 @@ def download_driver(driver_path, system):
     # way to note which chromedriver version is installed
     open(os.path.join(os.path.dirname(driver_path),
                       "{}.txt".format(latest_version)), "w").close()
-    return True
+    return True, latest_version

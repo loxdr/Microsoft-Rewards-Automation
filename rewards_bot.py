@@ -60,16 +60,23 @@ class chrome_Instances():
     
 class Microsoft_Rewards_Automation():
     def __init__(self):
-        self.accounts_Using = None
         self.search_Terms = []
         self.daily_links = []
-        
-        #self.data_Management()
+        self.chromedriver_Version = None
+        self.accounts_Using = None
+        self.accounts_Using = 0
+        self.search_clients = 5
+
         self.platform_Checker()
         self.chrome_Management()
-        self.search_Term_Generation()
+        self.data_Management()
+        # self.search_Term_Generation()
 
+    # Program Init
     def platform_Checker(self):
+        """
+            Checks what the platform is
+        """
         self.platform = platform
         if self.platform == "linux" or self.platform == "linux2":
             self.os = "Linux"
@@ -79,23 +86,43 @@ class Microsoft_Rewards_Automation():
             self.os = "Windows"
 
     def chrome_Management(self):
-        print('Attempting to delete chromedriver')
-        try: shutil.rmtree('Chromedriver')
-        except: print('Failed Deleting chromedriver')
-        print('Remaking chromedriver directory')
-        os.mkdir('Chromedriver')
-        print('Reinstalling latest version of chromedriver')
+        """
+            Deletes all Chromedriver files and Reinstalls latest version
+        """
+        print('Attempting to delete Chromedriver')
+        try: 
+            shutil.rmtree('Chromedriver')
+            print('Deleted Chromedriver')
+        except: 
+            print('Failed Deleting Chromedriver, check permissions or anti-virus')
+            exit()
+        print('Rebuilding Chromedriver Directory')
+        try:
+            os.mkdir('Chromedriver')
+            print('Rebuilt Chromedriver Directory')
+        except:
+            print('Failed Creating Chromedriver Directory, check permissions or anti-virus')
+            exit()
+        print('Reinstalling latest version of Chromedriver')
         if self.os == "Linux":
             res = download_driver(r'Chromedriver/chromedriver', self.os)
         if self.os == "Mac":
             res = download_driver(r'Chromedriver/chromedriver', self.os)
         if self.os == "Windows":
             res = download_driver(r'Chromedriver\chromedriver.exe', self.os)
-        if res:
+        if res[0]:
             print('Succesfully reinstalled Chromedriver')
+            print(f'Using version {res[1]} of Chromedriver')
+            self.chromedriver_Version = res[1]
+        else:
+            print("Failed installing Chromedriver, check permissions or anti-virus")
 
     def data_Management(self):
-        def error(string):
+        """
+            Reads data.json file and checks if its formatted for proper operation
+            If no data.json file present then it creates new file with template inside
+        """
+        def error(string = 'Steps to run this bot'):
             print("\033[1m" + f"\n  >> {string}" + "\033[0m")
             sleep(1)
             print("  1) Open the newly generated data.json file")
@@ -108,31 +135,37 @@ class Microsoft_Rewards_Automation():
             sleep(1)
             print("  3) Relaunch this program")
             exit()
-
+        print("Checking if data.json exists")
         if isfile('data.json') != True:
             try:
-               open("data.json", "x")
+                print('Doesnt exist. Creating File')
+                with open("data.json", "w") as f:
+                    print('Created file')
+                    template = {
+                        "MS Rewards Accounts":[
+                            {"Email": "email@example.com", "Password": "example"},
+                            {"Email": "email@example.com", "Password": "example"},
+                            {"Email": "email@example.com", "Password": "example"}],
+                        "General Config":[
+                            {"Discord_Webhook_URL": ""}]}
+                    json.dump(template, f, indent=4)
             except PermissionError:
-                print("Unable to complete as this program does not have the required permissions")
+                print("Unable to create file: Dont have required permissions")
                 exit()
-            error('Steps to run this bot')     
+            error()
         else:
+            print('File exists')
             with open("data.json") as r:
                 try:
-                    data = json.load(r)
-                except PermissionError:
-                    print("Unable to complete as this program does not have the required permissions")
-                    exit()
-                try:
-                    self.accounts_Using = len(data)
-                    self.account_Data = []
-                    for i in range(1, self.accounts_Using+1):
-                        self.account_Data.append(data[f'Account-{i}'][f'Email-{i}'])
-                        self.account_Data.append(data[f'Account-{i}'][f'Password-{i}'])
+                    self.json_File = json.load(r)
+                    print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} accounts')
+                    self.accounts_Using = len(self.json_File["MS Rewards Accounts"])
                 except:
-                    error("Make sure to follow the exact structure")
-
-    # Search Config                
+                    print('File formatted incorrectly')
+                    error('Make sure to format the json file correctly')
+    # Program Init
+         
+    # Search              
     def search_Term_Generation(self):
         words = ["What is the definition of 5", '5', "Etymology of 5", "What is the meaning of 5", "What country did the word 5 come from?", "What are some synonyms of 5", "What are some antonyms of 5", "Synonym of 5", "Antonym of 5", "Meaning of 5", "Where did the word 5 come from?"]
         maths = ["What is the answer to: 5", "How do you solve: 5", "5 is equal to", "5"]
@@ -415,6 +448,7 @@ class Microsoft_Rewards_Automation():
 
         signin()
         search() 
+    # Search
 
     # Daily Challenges
     def dailies_Handler(self, username, password, set, iter):
@@ -655,25 +689,35 @@ class Microsoft_Rewards_Automation():
                   
         sign_In()
         task_Function()
+    # Daily Challenges
+
+    # Stat Generator
+    def stat_Generator(self, username, password):
+        pass
+    # Stat Generator
 
     # Main Function
     def processor(self):
         def searches():
-            # Signin And Search
+            # Main
             if __name__ == '__main__':
-                self.data_search,processes = [],[]
+                search_data, processes = [],[]
                 for w in range(self.accounts_Using):
                     x = w + 1
-                    for y in range(5):
+                    stat_Data = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
+                    p = Process(target=self.stat_Generator,args=stat_Data)
+                    p.start()
+                    p.join()
+                    for y in range(self.search_clients):
                         rang = y + 1  
                         if rang != 4 or rang != 5 : # Desktop
-                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang), x, rang, False)    
+                            temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang), x, rang, False)    
                         if rang == 4: # Mobile
-                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, True)
+                            temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, True)
                         if rang == 5: # Edge
-                            temp = (self.account_Data[w*2], self.account_Data[(w*2)+1], self.sts(x,rang, mobile=True), x, rang, False, True)
-                        self.data_search.append(temp)
-                for tuple in self.data_search:
+                            temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, False, True)
+                        search_data.append(temp)
+                for tuple in search_data:
                     y = Process(target=self.search_Handler,args=tuple)
                     y.start()
                     processes.append(y)
@@ -681,6 +725,8 @@ class Microsoft_Rewards_Automation():
                     item.join()
 
         def dailies():
+            # Count Points
+
             # Daily Challenges
             if __name__ == '__main__':
                 self.data_daily,processes = [], []
