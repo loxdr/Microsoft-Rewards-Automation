@@ -22,7 +22,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
-
 class chrome_Instances():
     def __init__(self, agent, headless = False):
         self.agent = agent
@@ -64,10 +63,10 @@ class Microsoft_Rewards_Automation():
         self.search_Terms = []
         self.daily_links = []
         
-        #self.data_Management()
+        self.data_Management()
         self.platform_Checker()
         self.chrome_Management()
-        self.search_Term_Generation()
+        # self.search_Term_Generation()
 
     def platform_Checker(self):
         self.platform = platform
@@ -98,7 +97,8 @@ class Microsoft_Rewards_Automation():
         def error(string):
             print("\033[1m" + f"\n  >> {string}" + "\033[0m")
             sleep(1)
-            print("  1) Open the newly generated data.json file")
+            x = "\033[1m" + "data.json" + "\033[0m"
+            print(f"  1) Open the newly generated {x} file")
             sleep(1.5)
             print("  2) Fill in as many accounts as you like")
             sleep(1)
@@ -123,6 +123,8 @@ class Microsoft_Rewards_Automation():
                 except PermissionError:
                     print("Unable to complete as this program does not have the required permissions")
                     exit()
+                except:
+                    error("Make sure to follow the exact structure")
                 try:
                     self.accounts_Using = len(data)
                     self.account_Data = []
