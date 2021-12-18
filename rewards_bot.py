@@ -137,7 +137,7 @@ class Microsoft_Rewards_Automation():
                         x = self.json_File["MS Rewards Accounts"][p]['Email']
                         if x == 'email@example.com':
                             jam = True
-                            error("Make sure to fill in the json filee")
+                            error("Make sure to fill in the json file")
                     print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
                     for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
                     self.accounts_Using = len(self.json_File["MS Rewards Accounts"])
