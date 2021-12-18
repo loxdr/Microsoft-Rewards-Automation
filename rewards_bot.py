@@ -4,7 +4,8 @@ from os.path import isfile
 import shutil
 import os
 from random import choice, randint
-from re import sub
+from re import sub, search
+import datetime
 from sys import exit, platform
 from time import perf_counter, sleep, time
 from Support_Files.driver_update import download_driver
@@ -63,6 +64,7 @@ class Microsoft_Rewards_Automation():
     def __init__(self):
         self.search_Terms = []
         self.daily_links = []
+        self.status = []
         self.chromedriver_Version = None
         self.accounts_Using = None
         self.accounts_Using = 0
@@ -131,11 +133,11 @@ class Microsoft_Rewards_Automation():
             with open("data.json") as r:
                 try:
                     self.json_File = json.load(r)
-                    for p in range(3):
+                    for p in range(len(self.json_File["MS Rewards Accounts"])):
                         x = self.json_File["MS Rewards Accounts"][p]['Email']
                         if x == 'email@example.com':
                             jam = True
-                            error("Make sure to fill in the json file")
+                            error("Make sure to fill in the json filee")
                     print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
                     for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
                     self.accounts_Using = len(self.json_File["MS Rewards Accounts"])
@@ -154,8 +156,7 @@ class Microsoft_Rewards_Automation():
                                     {"Discord_Webhook_URL": ""}]}
                             json.dump(template, f, indent=4)
                         error('Make sure to format the json file correctly')
-                    
-    
+                       
     def chrome_Management(self):
         """
             Deletes all Chromedriver files and Reinstalls latest version
@@ -583,11 +584,11 @@ class Microsoft_Rewards_Automation():
                 # select html to send commands to
                 html = bot.find_element_by_tag_name('html')
                 # scroll up and down to trigger points
-                for i in range(3):
+                for i in range(2):
                     html.send_keys(Keys.END)
-                    sleep(0.3)
+                    sleep(0.75)
                     html.send_keys(Keys.HOME)
-                    sleep(0.3)
+                    sleep(0.75)
                 # exit to main window
                 close_Window()
                 switch_back()
@@ -730,7 +731,129 @@ class Microsoft_Rewards_Automation():
 
     # Stat Generator
     def stat_Generator(self, username, password):
+        def action_wait_to_load(xpath):
+            try:
+                WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+            except (TimeoutException, UnexpectedAlertPresentException):
+                bot.refresh()
+                sleep(5)
+
+        def laction_wait(xpath):
+            try:
+                WebDriverWait(bot, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+                return False
+            except (TimeoutException, UnexpectedAlertPresentException):
+                return True
+        
+        def send_input(xpath, input, input2=None):
+            action_wait_to_load(xpath=xpath)
+            el = bot.find_element_by_xpath(xpath)
+            el.send_keys(input)
+            if input2 != None:
+                el.send_keys(input2)
+
+        def send_click(xpath):
+            action_wait_to_load(xpath=xpath)
+            bot.find_element_by_xpath(xpath).click()  
+  
+        def sign_In():
+            bot.get(f'https://rewards.microsoft.com/Signin?idru=%2F')
+            send_input(f"//input[@type='email']", username, Keys.RETURN)
+            send_input(f"//input[@type='password']", password, Keys.RETURN)
+            for _ in range(3):
+                sleep(2)
+                x = laction_wait(f"//input[@type='button']")
+                if x: break
+                if x != True: send_click(f"//input[@type='button']")
+            for _ in range(2):
+                x = laction_wait(f'/html/body/div[5]/div[2]/button')
+                if x: break
+                if x != True: send_click(f'/html/body/div[5]/div[2]/button')
+            sleep(2)
+            bot.refresh()
+        
+        # Stat Generation
+        def get_user_stats():
+            js = bot.find_elements_by_xpath(
+                '//script[text()[contains(., "userStatus")]]')
+            if not js:
+                return {}
+
+            matches = search(
+                r'(?=\{"userStatus":).*(=?\}\};)', js[0].get_attribute('text'))
+            if not matches:
+                return {}
+            return json.loads(matches[0][:-1])
+
+        def get_user_lvl(json):
+            if json['userStatus']['levelInfo']['levels'][0]['active'] == True:
+                print('User is Level 1')
+                return 1
+            else:
+                return 2
+
+        def get_pts_lvl(json):
+            if 'userStatus' not in json:
+                print('Cannot find key "userStatus"')
+                return
+            current_pts_lvl = json['userStatus']
+            current_pts_lvl = int(current_pts_lvl['availablePoints'])
+            print(current_pts_lvl)
+            return current_pts_lvl
+        
+        def get_pts_pc(json):
+            if 'pcSearch' not in json['userStatus']['counters']:
+                print('Cannot find daily point levels: PC Search')
+            pc_search = json['userStatus']['counters']['pcSearch'][0]
+            pc_points = pc_search['pointProgress']
+            pc_max_points = pc_search['pointProgressMax']
+            pc_search = f'{str(pc_points)} / {str(pc_max_points)}'
+            print(pc_search)
+            return pc_search
+
+        def get_pts_quiz(json):
+            if 'dailySetPromotions' not in json:
+                print("Cannot find daily point levels: Daily Quiz")
+            if 'morePromotions' not in json:
+                print("Cannot find daily point levels: More Quiz")
+            today = f'{datetime.datetime.now():%m/%d/%Y}'
+            quiz_points = 0
+            quiz_max_points = 0
+            for daily in json['dailySetPromotions'][today]:
+                quiz_points += int(daily['pointProgress'])
+                quiz_max_points += int(daily['pointProgressMax'])
+            for daily in json['morePromotions']:
+                quiz_points += int(daily['pointProgress'])
+                quiz_max_points += int(daily['pointProgressMax'])
+            quiz = f'{str(quiz_points)} / {str(quiz_max_points)}'
+            print(quiz)
+            return quiz
+
+        def get_pts_mobile(json):
+            if 'mobileSearch' not in json['userStatus']['counters']:
+                print('No mobile points as account is level 1')
+                return 'Account is level 1'
+            mbs = json['userStatus']['counters']['mobileSearch'][0]
+            mobile_search_progress = int(mbs['pointProgress'])
+            mobile_search_max = int(mbs['pointProgressMax'])
+            mobile_search = f'{str(mobile_search_progress)} / {str(mobile_search_max)}'
+            print(mobile_search)
+            return mobile_search
+        # Stat Generation
+
         print(f"Generating point levels: {username}")
+        desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
+        chrome = chrome_Instances(choice(desktop_Agents))
+        bot = chrome.get_Browser()
+        sign_In()
+
+        f = get_user_stats()
+        get_user_lvl(f)
+        get_pts_lvl(f)
+        get_pts_pc(f)
+        get_pts_mobile(f)
+        get_pts_quiz(f)
+
     # Stat Generator
 
     # Main Function
