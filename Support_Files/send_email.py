@@ -1,6 +1,6 @@
 import smtplib
 
-def send_email_error(body, subject, email, password):
+def send_email(body, subject, email, password):
     def sende():
         with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
             smtp.ehlo()

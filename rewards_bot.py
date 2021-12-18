@@ -8,6 +8,7 @@ from re import sub
 from sys import exit, platform
 from time import perf_counter, sleep, time
 from Support_Files.driver_update import download_driver
+from Support_Files.send_email import send_email
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from selenium import webdriver
 from selenium.common.exceptions import (TimeoutException,
