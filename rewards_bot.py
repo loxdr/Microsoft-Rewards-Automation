@@ -798,7 +798,7 @@ class Microsoft_Rewards_Automation():
                 return
             current_pts_lvl = json['userStatus']
             current_pts_lvl = int(current_pts_lvl['availablePoints'])
-            print(current_pts_lvl)
+            print(f'Current points level: {str(current_pts_lvl)}')
             return current_pts_lvl
         
         def get_pts_pc(json):
@@ -808,7 +808,10 @@ class Microsoft_Rewards_Automation():
             pc_points = pc_search['pointProgress']
             pc_max_points = pc_search['pointProgressMax']
             pc_search = f'{str(pc_points)} / {str(pc_max_points)}'
-            print(pc_search)
+            if pc_max_points == pc_points:
+                print(f'Bot has generated max search points for today: {pc_search}')
+            else:
+                print(f'Current search points level: {str(pc_search)}')
             return pc_search
 
         def get_pts_quiz(json):
@@ -826,9 +829,12 @@ class Microsoft_Rewards_Automation():
                 quiz_points += int(daily['pointProgress'])
                 quiz_max_points += int(daily['pointProgressMax'])
             quiz = f'{str(quiz_points)} / {str(quiz_max_points)}'
-            print(quiz)
+            if quiz_points == quiz_max_points:
+                print(f'Bot has generated max quiz points for today: {quiz}')
+            else:
+                print(f'Current quiz points level: {str(quiz)}')
             return quiz
-
+            
         def get_pts_mobile(json):
             if 'mobileSearch' not in json['userStatus']['counters']:
                 print('No mobile points as account is level 1')
@@ -837,8 +843,11 @@ class Microsoft_Rewards_Automation():
             mobile_search_progress = int(mbs['pointProgress'])
             mobile_search_max = int(mbs['pointProgressMax'])
             mobile_search = f'{str(mobile_search_progress)} / {str(mobile_search_max)}'
-            print(mobile_search)
-            return mobile_search
+            if mobile_search == mobile_search_max:
+                print(f'Bot has generated max mobile search points for today: {mobile_search}')
+            else:
+                print(f'Current mobile search points level: {str(mobile_search)}')
+            return mobile_search   
         # Stat Generation
 
         print(f"Generating point levels: {username}")
@@ -891,7 +900,6 @@ class Microsoft_Rewards_Automation():
             for w in range(self.accounts_Using):
                 stat_Data = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
                 p = Process(target=self.stat_Generator,args=stat_Data)
-                print('Start')
                 p.start()
                 p.join()
                 for y in range(self.daily_clients):
