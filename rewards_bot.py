@@ -91,9 +91,7 @@ class Microsoft_Rewards_Automation():
             self.os = "Windows"
 
     def data_Management(self):
-        """
-            Reads data.json file and checks if its formatted for proper operation
-            If no data.json file present then it creates new file with template inside
+        """Checks if support files are present and correctly formatted
         """
         def error(string = 'Steps to run this bot'):
             print("\033[1m" + f"\n  >> {string}" + "\033[0m")
@@ -157,7 +155,17 @@ class Microsoft_Rewards_Automation():
                                     {"Discord_Webhook_URL": ""}]}
                             json.dump(template, f, indent=4)
                         error('Make sure to format the json file correctly')
-                       
+        print('Checking if \'log\' directory exists')
+        if os.path.isdir('log'):
+            if os.path.isfile('stash.json'):
+                print('Found log folder and stash.json file')
+        else:
+            print('\'log\' directory does not exist')
+            os.makedirs('log')
+            print('Creating log directory and stash.json file')
+            with open('log/stash.json', 'x') as f:
+                f.close()
+    
     def chrome_Management(self):
         """
             Deletes all Chromedriver files and Reinstalls latest version
@@ -731,9 +739,10 @@ class Microsoft_Rewards_Automation():
     # Daily Challenges
 
     # Stat Generator
-    def stat_Generator(self, username, password):
+    def stat_Generator(self, username, password, result):
         """
-            Returns: level, profile_points, pc_points, mobile_points, quiz_points
+            Result is either 1 or 0. 0 Being that it is the count before and 1 being the count after
+            Returns: level, profile_points, pc_points, mobile_points, quiz_points, result
         """
         def action_wait_to_load(xpath):
             try:
@@ -842,7 +851,7 @@ class Microsoft_Rewards_Automation():
         def get_pts_mobile(json):
             if 'mobileSearch' not in json['userStatus']['counters']:
                 print('No mobile points as account is level 1')
-                return 'Account is level 1'
+                return 'N/A'
             mbs = json['userStatus']['counters']['mobileSearch'][0]
             mobile_search_progress = int(mbs['pointProgress'])
             mobile_search_max = int(mbs['pointProgressMax'])
@@ -867,20 +876,42 @@ class Microsoft_Rewards_Automation():
         mobile_points = get_pts_mobile(f)
         quiz_points = get_pts_quiz(f)
 
-        return level,profile_points,pc_points,mobile_points,quiz_points
+        return username, level, profile_points, pc_points, mobile_points, quiz_points, result
+    
+    def backup_Generator(self, email, password, result):
+        # data = self.stat_Generator(email, password, result)
+        data = ['jooklyscash@outlook.com', 1, 3464, '0 / 30', 'Account is level 1', '160 / 160']
+        data = json.dumps(list(data))
+        # print(data)
+
+        today = f'{datetime.datetime.now():%d/%m/%Y}'
+        print(today)
+        stats = json()
+        
+        stats[f'{today}'] = data
+        with open('app.json', 'w') as f:
+            json.dump(data, f)
+
     # Stat Generator
 
     # Main Function
     def processor(self, Searches = True, Dailies = True):
-        def stats():
-            def mini():
-                x = self.stat_Generator(email, self.json_File['MS Rewards Accounts'][w]['Password'])
-                self.status.append(x)
+        def stats(place):
+            temp_data, processes = [], []
             for w in range(self.accounts_Using):
-                x = self.stat_Generator(self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
-                self.status.append(x)
-            print(self.status[0][1])
-            print(self.status[1][1])
+                x = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], place)
+                temp_data.append(x)
+            for data in temp_data:
+                y = Process(target=self.backup_Generator,args=data)
+                y.start()
+                processes.append(y)
+            for item in processes:
+                item.join()
+
+        # for i in range(self.accounts_Using):
+        #     print(self.status)
+        #     print(f'Points level for account: {i} {self.status[i][1]}')
+
         
         def searches():
             # Main
@@ -921,10 +952,10 @@ class Microsoft_Rewards_Automation():
             for item in processes:
                 item.join()
 
-        stats()
+        # stats(0)
         if Searches: searches()
         if Dailies: dailies()
-
+        # stats(1)
     # Logging, Debug and Output
     def notification_Center(self):
         # Point Counter
@@ -933,7 +964,7 @@ class Microsoft_Rewards_Automation():
         # Notification sender ((Discord Webhook, Email) Each includes - (Picture, Points, Status of account))
         status = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
         def webhook_Sender(username, complete_Stats, general_Stats, sign_In_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, time_Stats, point_Stats):
-            webhook = DiscordWebhook(url='https://discord.com/api/webhooks/917384579822784513/-R735zyONifkZWkkpa4deStsGu4pkWV4dWQcM9vwBEO8nvSWMJ9px0LacZp-HxdrcYgS')
+            webhook = DiscordWebhook(url=self.json_File['General Config'][0]['Discord_Webhook_URL'])
             embed = DiscordEmbed(title="Microsoft Rewards Automation", description=f"**Account:** *{username}*", color='ffffff')
             embed.add_embed_field(name="**Completed:**", value=F"{complete_Stats}", inline=True)
             embed.add_embed_field(name="**General Status:**", value=F"{general_Stats}", inline=True)
@@ -951,4 +982,4 @@ class Microsoft_Rewards_Automation():
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
-    MSRA.processor(Searches = False, Dailies = True)
+    MSRA.processor(Searches = False, Dailies = False)

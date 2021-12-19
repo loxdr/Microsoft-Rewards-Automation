@@ -1,5 +1,6 @@
 *.DS_Store
 data.json
+log/
 *.pyc
 *.pyo
 __pycache__/
