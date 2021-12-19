@@ -48,6 +48,7 @@ class chrome_Instances():
         options.add_argument(f"user-agent={self.agent}")
         options.add_argument("--disable-logging")
         options.add_argument("--disable-crash-reporter")
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument("--log-level=3")
         if self.os == 'Windows':
             self.browser = webdriver.Chrome(executable_path=r"Chromedriver/chromedriver.exe", options=options)
@@ -731,6 +732,9 @@ class Microsoft_Rewards_Automation():
 
     # Stat Generator
     def stat_Generator(self, username, password):
+        """
+            Returns: level, profile_points, pc_points, mobile_points, quiz_points
+        """
         def action_wait_to_load(xpath):
             try:
                 WebDriverWait(bot, 20).until(EC.visibility_of_element_located((By.XPATH, xpath)))
@@ -857,25 +861,33 @@ class Microsoft_Rewards_Automation():
         sign_In()
 
         f = get_user_stats()
-        get_user_lvl(f)
-        get_pts_lvl(f)
-        get_pts_pc(f)
-        get_pts_mobile(f)
-        get_pts_quiz(f)
+        level = get_user_lvl(f)
+        profile_points = get_pts_lvl(f)
+        pc_points = get_pts_pc(f)
+        mobile_points = get_pts_mobile(f)
+        quiz_points = get_pts_quiz(f)
 
+        return level,profile_points,pc_points,mobile_points,quiz_points
     # Stat Generator
 
     # Main Function
     def processor(self, Searches = True, Dailies = True):
+        def stats():
+            def mini():
+                x = self.stat_Generator(email, self.json_File['MS Rewards Accounts'][w]['Password'])
+                self.status.append(x)
+            for w in range(self.accounts_Using):
+                x = self.stat_Generator(self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
+                self.status.append(x)
+            print(self.status[0][1])
+            print(self.status[1][1])
+        
         def searches():
             # Main
             search_data, processes = [],[]
             for w in range(self.accounts_Using):
                 x = w + 1
-                stat_Data = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
-                p = Process(target=self.stat_Generator,args=stat_Data)
-                p.start()
-                p.join()
+                self.stat_Generator(self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
                 for y in range(self.search_clients):
                     rang = y + 1  
                     if rang != 4 or rang != 5 : # Desktop
@@ -898,10 +910,6 @@ class Microsoft_Rewards_Automation():
             # Daily Challenges
             daily_data,processes = [], []
             for w in range(self.accounts_Using):
-                stat_Data = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
-                p = Process(target=self.stat_Generator,args=stat_Data)
-                p.start()
-                p.join()
                 for y in range(self.daily_clients):
                     rang = y + 1  
                     temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], w, rang)
@@ -912,7 +920,8 @@ class Microsoft_Rewards_Automation():
                 processes.append(y)
             for item in processes:
                 item.join()
-    
+
+        stats()
         if Searches: searches()
         if Dailies: dailies()
 
