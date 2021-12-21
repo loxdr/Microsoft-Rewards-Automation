@@ -1,28 +1,31 @@
-import json
-from multiprocessing import Process
+from datetime import datetime
+from json import dump, load, loads
+from shutil import rmtree
+
+from multiprocessing import Process, Queue
+from os import path, mkdir
 from os.path import isfile
-import shutil
-import os
 from random import choice, randint
-from re import sub, search
-import datetime
+from re import search, sub
 from sys import exit, platform
-from time import perf_counter, sleep, time
-from Support_Files.driver_update import download_driver
-from Support_Files.send_email import send_email
-from discord_webhook import DiscordWebhook, DiscordEmbed
+from time import sleep, time
+
+from discord_webhook import DiscordEmbed, DiscordWebhook
 from selenium import webdriver
-from selenium.common.exceptions import (TimeoutException,
-                                        UnexpectedAlertPresentException,
-                                        ElementClickInterceptedException,
-                                        ElementNotVisibleException,
+from selenium.common.exceptions import (ElementClickInterceptedException,
                                         ElementNotInteractableException,
+                                        ElementNotVisibleException,
+                                        TimeoutException,
+                                        UnexpectedAlertPresentException,
                                         WebDriverException)
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
+
+from Support_Files.driver_update import download_driver
+from Support_Files.send_email import send_email
 
 
 class chrome_Instances():
@@ -65,7 +68,7 @@ class Microsoft_Rewards_Automation():
     def __init__(self):
         self.search_Terms = []
         self.daily_links = []
-        self.status = []
+        self.stats = []
         self.chromedriver_Version = None
         self.accounts_Using = None
         self.accounts_Using = 0
@@ -121,7 +124,7 @@ class Microsoft_Rewards_Automation():
                             {"Email": "email@example.com", "Password": "example"}],
                         "General Config":[
                             {"Discord_Webhook_URL": ""}]}
-                    json.dump(template, f, indent=4)
+                    dump(template, f, indent=4)
             except PermissionError:
                 print("Unable to create file: Dont have required permissions")
                 exit()
@@ -131,14 +134,12 @@ class Microsoft_Rewards_Automation():
             print('File exists')
             with open("data.json") as r:
                 try:
-                    self.json_File = json.load(r)
+                    self.json_File = load(r)
                     for p in range(len(self.json_File["MS Rewards Accounts"])):
                         x = self.json_File["MS Rewards Accounts"][p]['Email']
                         if x == 'email@example.com':
                             jam = True
                             error("Make sure to fill in the json file")
-                    print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
-                    for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
                     self.accounts_Using = len(self.json_File["MS Rewards Accounts"])
                 except:
                     if jam:
@@ -153,18 +154,20 @@ class Microsoft_Rewards_Automation():
                                     {"Email": "email@example.com", "Password": "example"}],
                                 "General Config":[
                                     {"Discord_Webhook_URL": ""}]}
-                            json.dump(template, f, indent=4)
+                            dump(template, f, indent=4)
                         error('Make sure to format the json file correctly')
         print('Checking if \'log\' directory exists')
-        if os.path.isdir('log'):
-            if os.path.isfile('stash.json'):
+        if path.isdir('log'):
+            if path.isfile('stash.json'):
                 print('Found log folder and stash.json file')
         else:
             print('\'log\' directory does not exist')
-            os.makedirs('log')
+            mkdir('log')
             print('Creating log directory and stash.json file')
             with open('log/stash.json', 'x') as f:
                 f.close()
+        print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
+        for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
     
     def chrome_Management(self):
         """
@@ -172,14 +175,16 @@ class Microsoft_Rewards_Automation():
         """
         print('Attempting to delete Chromedriver')
         try: 
-            shutil.rmtree('Chromedriver')
+            rmtree('Chromedriver')
             print('Deleted Chromedriver')
+        except OSError:
+            pass
         except: 
             print('Failed Deleting Chromedriver, check permissions or anti-virus')
             exit()
         print('Rebuilding Chromedriver Directory')
         try:
-            os.mkdir('Chromedriver')
+            mkdir('Chromedriver')
             print('Rebuilt Chromedriver Directory')
         except:
             print('Failed Creating Chromedriver Directory, check permissions or anti-virus')
@@ -584,7 +589,6 @@ class Microsoft_Rewards_Automation():
                 x = laction_wait(f'/html/body/div[5]/div[2]/button')
                 if x: break
                 if x != True: send_click(f'/html/body/div[5]/div[2]/button')
-            sleep(2)
             bot.refresh()
         
         # Different Task Operations
@@ -739,10 +743,10 @@ class Microsoft_Rewards_Automation():
     # Daily Challenges
 
     # Stat Generator
-    def stat_Generator(self, username, password, result):
+    def stat_Handler(self, username, password, position, queue):
         """
-            Result is either 1 or 0. 0 Being that it is the count before and 1 being the count after
-            Returns: level, profile_points, pc_points, mobile_points, quiz_points, result
+            Position is either 1 or 0. 0 Being that it is the count before and 1 being the count after
+            Returns: level, profile_points, pc_points, mobile_points, quiz_points, position
         """
         def action_wait_to_load(xpath):
             try:
@@ -782,8 +786,6 @@ class Microsoft_Rewards_Automation():
                 x = laction_wait(f'/html/body/div[5]/div[2]/button')
                 if x: break
                 if x != True: send_click(f'/html/body/div[5]/div[2]/button')
-            sleep(2)
-            bot.refresh()
         
         # Stat Generation
         def get_user_stats():
@@ -796,43 +798,43 @@ class Microsoft_Rewards_Automation():
                 r'(?=\{"userStatus":).*(=?\}\};)', js[0].get_attribute('text'))
             if not matches:
                 return {}
-            return json.loads(matches[0][:-1])
+            return loads(matches[0][:-1])
 
         def get_user_lvl(json):
             if json['userStatus']['levelInfo']['levels'][0]['active'] == True:
-                print('User is Level 1')
+                print('   User is Level 1')
                 return 1
             else:
                 return 2
 
         def get_pts_lvl(json):
             if 'userStatus' not in json:
-                print('Cannot find key "userStatus"')
+                print('   Cannot find key "userStatus"')
                 return
             current_pts_lvl = json['userStatus']
             current_pts_lvl = int(current_pts_lvl['availablePoints'])
-            print(f'Current points level: {str(current_pts_lvl)}')
+            print(f'   Current points level: {str(current_pts_lvl)}')
             return current_pts_lvl
         
         def get_pts_pc(json):
             if 'pcSearch' not in json['userStatus']['counters']:
-                print('Cannot find daily point levels: PC Search')
+                print('   Cannot find daily point levels: PC Search')
             pc_search = json['userStatus']['counters']['pcSearch'][0]
             pc_points = pc_search['pointProgress']
             pc_max_points = pc_search['pointProgressMax']
             pc_search = f'{str(pc_points)} / {str(pc_max_points)}'
             if pc_max_points == pc_points:
-                print(f'Bot has generated max search points for today: {pc_search}')
+                print(f'   Bot has generated max search points for today: {pc_search}')
             else:
-                print(f'Current search points level: {str(pc_search)}')
+                print(f'   Current search points level: {str(pc_search)}')
             return pc_search
 
         def get_pts_quiz(json):
             if 'dailySetPromotions' not in json:
-                print("Cannot find daily point levels: Daily Quiz")
+                print("   Cannot find daily point levels: Daily Quiz")
             if 'morePromotions' not in json:
-                print("Cannot find daily point levels: More Quiz")
-            today = f'{datetime.datetime.now():%m/%d/%Y}'
+                print("   Cannot find daily point levels: More Quiz")
+            today = f'{datetime.now():%m/%d/%Y}'
             quiz_points = 0
             quiz_max_points = 0
             for daily in json['dailySetPromotions'][today]:
@@ -843,29 +845,29 @@ class Microsoft_Rewards_Automation():
                 quiz_max_points += int(daily['pointProgressMax'])
             quiz = f'{str(quiz_points)} / {str(quiz_max_points)}'
             if quiz_points == quiz_max_points:
-                print(f'Bot has generated max quiz points for today: {quiz}')
+                print(f'   Bot has generated max quiz points for today: {quiz}')
             else:
-                print(f'Current quiz points level: {str(quiz)}')
+                print(f'   Current quiz points level: {str(quiz)}')
             return quiz
             
         def get_pts_mobile(json):
             if 'mobileSearch' not in json['userStatus']['counters']:
-                print('No mobile points as account is level 1')
+                print('   No mobile points as account is level 1')
                 return 'N/A'
             mbs = json['userStatus']['counters']['mobileSearch'][0]
             mobile_search_progress = int(mbs['pointProgress'])
             mobile_search_max = int(mbs['pointProgressMax'])
             mobile_search = f'{str(mobile_search_progress)} / {str(mobile_search_max)}'
             if mobile_search == mobile_search_max:
-                print(f'Bot has generated max mobile search points for today: {mobile_search}')
+                print(f'   Bot has generated max mobile search points for today: {mobile_search}')
             else:
-                print(f'Current mobile search points level: {str(mobile_search)}')
+                print(f'   Current mobile search points level: {str(mobile_search)}')
             return mobile_search   
         # Stat Generation
 
         print(f"Generating point levels: {username}")
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
-        chrome = chrome_Instances(choice(desktop_Agents))
+        chrome = chrome_Instances(choice(desktop_Agents), headless=True)
         bot = chrome.get_Browser()
         sign_In()
 
@@ -876,42 +878,26 @@ class Microsoft_Rewards_Automation():
         mobile_points = get_pts_mobile(f)
         quiz_points = get_pts_quiz(f)
 
-        return username, level, profile_points, pc_points, mobile_points, quiz_points, result
-    
-    def backup_Generator(self, email, password, result):
-        # data = self.stat_Generator(email, password, result)
-        data = ['jooklyscash@outlook.com', 1, 3464, '0 / 30', 'Account is level 1', '160 / 160']
-        data = json.dumps(list(data))
-        # print(data)
-
-        today = f'{datetime.datetime.now():%d/%m/%Y}'
-        print(today)
-        stats = json()
-        
-        stats[f'{today}'] = data
-        with open('app.json', 'w') as f:
-            json.dump(data, f)
-
+        x = [username, level, profile_points, pc_points, mobile_points, quiz_points, position]
+        print(f"Putting {username} data into queue")
+        queue.put(x)
     # Stat Generator
 
     # Main Function
     def processor(self, Searches = True, Dailies = True):
-        def stats(place):
+        def stats(position, queue):
             temp_data, processes = [], []
             for w in range(self.accounts_Using):
-                x = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], place)
+                x = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], position, queue)
                 temp_data.append(x)
             for data in temp_data:
-                y = Process(target=self.backup_Generator,args=data)
+                y = Process(target=self.stat_Handler,args=data)
                 y.start()
                 processes.append(y)
             for item in processes:
                 item.join()
-
-        # for i in range(self.accounts_Using):
-        #     print(self.status)
-        #     print(f'Points level for account: {i} {self.status[i][1]}')
-
+            while not queue.empty():
+                self.stats.append(queue.get())
         
         def searches():
             # Main
@@ -951,11 +937,17 @@ class Microsoft_Rewards_Automation():
                 processes.append(y)
             for item in processes:
                 item.join()
-
-        # stats(0)
+            
+        queue = Queue()
+        stats(0, queue)
+        for i in range(len(self.stats)):
+            print(f'Account: {self.stats[i][0]}')
+            print(f'Points: {self.stats[i][2]}')
+            print(f'Level: {self.stats[i][1]}')
         if Searches: searches()
         if Dailies: dailies()
-        # stats(1)
+        # stats(1, queue)
+    
     # Logging, Debug and Output
     def notification_Center(self):
         # Point Counter
