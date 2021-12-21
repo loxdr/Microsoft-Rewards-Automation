@@ -27,8 +27,6 @@ points for bing rewards
 
 - Detailed error logging to a file, discord webhook or email
 - Status updates Daily/Weekly/Bi-Weekly/Monthly of points via file, Discord webhook or email
-- Add support for more than 5 accounts
-- Add support for less than 5 accounts
 
 ## Future Plans
 
