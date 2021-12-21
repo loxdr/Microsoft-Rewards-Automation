@@ -74,6 +74,10 @@ class Microsoft_Rewards_Automation():
         self.accounts_Using = 0
         self.search_clients = 5
         self.daily_clients = 1
+        self.max_retries = 3
+        self.retries = 0
+        self.max_signin_retries = 3
+        self.signin_retries = 0
 
         self.platform_Checker()
         self.data_Management()
@@ -539,8 +543,7 @@ class Microsoft_Rewards_Automation():
             try:
                 WebDriverWait(bot, time_to_wait).until(EC.element_to_be_clickable((by_, selector)))
             except (TimeoutException, UnexpectedAlertPresentException):
-                print(f'{selector} element Not clickable - Timeout Exception', exc_info=False)
-                bot.refresh()
+                print(f'{selector} element Not clickable - Timeout Exception')
             except WebDriverException:
                 print(f'Webdriver Error for {selector} object')
                 bot.refresh()
@@ -613,44 +616,36 @@ class Microsoft_Rewards_Automation():
                 print('Error.')
 
         def task_Poll():
-            sleep(0.5)
-            wait_until_visible(By.ID, 'btoption0', 10)
-            choices = ['btoption0', 'btoption1']  # new poll format
+            choices = ['btoption0', 'btoption1']
             click_id(choice(choices))
-            sleep(0.1) #DONT DELETE!
-            # close window, switch to main
+            sleep(1)
             close_Window()
             switch_back()
 
         def task_Drag_Drop():
-            for i in range(100):
+            def get_options_for_drag_drop():
+                drag_options = find_class('rqOption')
+                right_answers = find_class('correctAnswer')
+                if right_answers:
+                    drag_options = [x for x in drag_options if x not in right_answers]
+                return drag_options
+            
+            for _ in range(100):
+                if find_id('quizCompleteContainer'):
+                    break
+                drag_options = get_options_for_drag_drop()
+                if not drag_options:
+                    continue
                 try:
-                    # find possible solution buttons
-                    drag_option = find_class('rqOption')
-                    # find any answers marked correct with correctAnswer tag
-                    right_answers = find_class('correctAnswer')
-                    # remove right answers from possible choices
-                    if right_answers:
-                        drag_option = [x for x in drag_option if x not in right_answers]
-                    if drag_option:
-                        # select first possible choice and remove from options
-                        choice_a = choice(drag_option)
-                        drag_option.remove(choice_a)
-                        # select second possible choice from remaining options
-                        choice_b = choice(drag_option)
-                        ActionChains(bot).drag_and_drop(choice_a, choice_b).perform()
+                    choice_a = choice(drag_options)
+                    drag_options.remove(choice_a)
+                    choice_b = choice(drag_options)
+                    ActionChains(bot).drag_and_drop(choice_a, choice_b).perform()
                 except (WebDriverException, TypeError):
                     print('Unknown Error.')
                     continue
-                finally:
-                    sleep(0.1)
-                    if find_id('quizCompleteContainer'):
-                        break
-            # close the quiz completion splash
-            sleep(0.1)
-            quiz_complete = find_css('.cico.btCloseBack')
-            if quiz_complete:
-                quiz_complete[0].click()
+                sleep(1)
+
             sleep(0.1)
             close_Window()
             switch_back()
@@ -659,49 +654,61 @@ class Microsoft_Rewards_Automation():
             for question_round in range(10):
                 print(f'Round# {question_round}')
                 if find_id('rqAnswerOption0'):
+                    sleep(3)
                     for i in range(10):
                         if find_id(f'rqAnswerOption{i}'):
-                            bot.execute_script(f"document.querySelectorAll('#rqAnswerOption{i}').forEach(el=>el.click());")
+                            bot.execute_script(
+                                f"document.querySelectorAll('#rqAnswerOption{i}').forEach(el=>el.click());")
                             print(f'Clicked {i}')
+                            sleep(2)
+                # let new page load
                 sleep(1)
                 if find_id('quizCompleteContainer'):
                     break
-            # close the quiz completion splash
-            quiz_complete = find_css('.cico.btCloseBack')
-            if quiz_complete:
-                quiz_complete[0].click()
             close_Window()
             switch_back()
 
         def task_Click():
-            for i in range(10):
+            while True:
+                if find_css('span[class="rw_icon"]'):
+                    break
                 if find_css('.cico.btCloseBack'):
                     find_css('.cico.btCloseBack')[0].click()[0].click()
                     print('Quiz popped up during a click quiz...')
+                
                 choices = find_class('wk_Circle')
                 # click answer
                 if choices:
                     choice(choices).click()
+                    sleep(3)
                 # click the 'next question' button
-                wait_until_clickable(By.CLASS_NAME, 'wk_buttons', 10)
+                # wait_until_clickable(By.ID, 'check', 10)
+                if find_css('span[class="rw_icon"]'):
+                    break
+                wait_until_clickable(By.CLASS_NAME, 'wk_button', 10)
                 # click_by_id('check')
-                click_class('wk_buttons')
+                click_class('wk_button')
                 # if the green check mark reward icon is visible, end loop
-                sleep(0.1)
-                if find_css('span[class="wk_SummaryHashTag"]'):
+                sleep(3)
+                if find_css('span[class="rw_icon"]'):
                     break
             close_Window()
             switch_back()
         # Different Task Operations
 
-        def test_Sign_In():
-                sleep(1)
-                sign_in_msg = find_class('simpleSignIn')
-                if sign_in_msg:
-                    bot.find_element_by_link_text('Sign in').click()
-                    sleep(2)
-                    bot.refresh()
-                    sleep(2)
+        def test_Sign_In(dailies, x):
+            sign_in_msg = find_class('simpleSignIn')
+            if sign_in_msg:
+                if self.max_signin_retries < self.signin_retries:
+                    print(f"Could not complete sign in: retried to many times. Activity: {dailies[x]}")
+                else:
+                    close_Window()
+                    switch_back()
+                    self.signin_retries += 1
+                    dailies[x].click()
+                    switch_to()
+                    sleep(5)
+                    test_Sign_In()
 
         def close_Window():
             if bot.title == 'Rewards Dashboard':
@@ -711,11 +718,13 @@ class Microsoft_Rewards_Automation():
 
         def task_Function():
             dailies = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+            x = -1
             for link in dailies:
+                x += 1
                 link.click()
                 switch_to()
                 sleep(5)
-                test_Sign_In()
+                test_Sign_In(dailies, x)
                 if find_id('btoption0'):
                     print('Daily Poll Found')
                     task_Poll()
@@ -726,7 +735,7 @@ class Microsoft_Rewards_Automation():
                         task_Drag_Drop()
                     elif find_id('rqAnswerOption0'):
                         print('Lightning Quiz identified')
-                        task_Lightning
+                        task_Lightning()
                 elif find_class('wk_Circle'):
                     print('Click Quiz identified')
                     task_Click()
@@ -736,8 +745,16 @@ class Microsoft_Rewards_Automation():
                 sleep(4)
                 close_Window()
                 switch_back()
-            print('Completed all dailies')
-                  
+            dailies = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
+            if dailies == []:
+                print('Finished Dailies')
+            else:
+                if self.retries > self.max_retries:
+                    print(f"Could not complete dailies: {len(dailies)} offers remaining")
+                else:
+                    self.retries += 1
+                    task_Function()
+
         sign_In()
         task_Function()
     # Daily Challenges
@@ -938,12 +955,12 @@ class Microsoft_Rewards_Automation():
             for item in processes:
                 item.join()
             
-        queue = Queue()
-        stats(0, queue)
-        for i in range(len(self.stats)):
-            print(f'Account: {self.stats[i][0]}')
-            print(f'Points: {self.stats[i][2]}')
-            print(f'Level: {self.stats[i][1]}')
+        # queue = Queue()
+        # stats(0, queue)
+        # for i in range(len(self.stats)):
+            # print(f'Account: {self.stats[i][0]}')
+            # print(f'Points: {self.stats[i][2]}')
+            # print(f'Level: {self.stats[i][1]}')
         if Searches: searches()
         if Dailies: dailies()
         # stats(1, queue)
@@ -974,4 +991,4 @@ class Microsoft_Rewards_Automation():
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
-    MSRA.processor(Searches = False, Dailies = False)
+    MSRA.processor(Searches = False, Dailies = True)
