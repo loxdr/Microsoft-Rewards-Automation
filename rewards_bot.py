@@ -17,7 +17,9 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
                                         ElementNotVisibleException,
                                         TimeoutException,
                                         UnexpectedAlertPresentException,
-                                        WebDriverException)
+                                        WebDriverException,
+                                        StaleElementReferenceException
+                                        )
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -78,11 +80,11 @@ class Microsoft_Rewards_Automation():
         self.retries = 0
         self.max_signin_retries = 3
         self.signin_retries = 0
-
+        self.webhook_Emoji = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
         self.platform_Checker()
-        self.data_Management()
         self.chrome_Management()
-        # self.search_Term_Generation()
+        self.search_Term_Generation()
+        self.data_Management()
 
     # Program Init
     def platform_Checker(self):
@@ -225,63 +227,63 @@ class Microsoft_Rewards_Automation():
         iphones = ['When was the 5 released', 'Pictures of 5', 'Camera quality of the 5', '5', 'Battery life of the 5', 'Screen size of the 5', 'Screen replacement for 5', 'ifixit.com 5']
         prefixes = ['What is the meaning of 5', '5', 'Metric prefix 5', 'What number is 5', '5 in numbers']
         movies_terms, states_terms, cities_terms, prefix_terms, words_terms, teams_terms, names_terms, country_terms, mountain_terms, iphone_terms, airport_code_terms, airport_name_terms = [], [], [], [], [], [], [], [], [], [], [], []
-        
-        with open('src/Support-Files/Random/movies.txt', 'r', encoding='UTF-8') as f:
+        print("Generating Search Terms")
+        with open('Dictionaries/movies.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 movies_terms.append(i)
-        with open('src/Support-Files/Random/states.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/states.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 states_terms.append(i)
-        with open('src/Support-Files/Random/words.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/words.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 words_terms.append(i)
-        with open('src/Support-Files/Random/names.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/names.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 names_terms.append(i)
-        with open('src/Support-Files/Random/countries.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/countries.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 country_terms.append(i)
-        with open('src/Support-Files/Random/mountains.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/mountains.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 mountain_terms.append(i)
-        with open('src/Support-Files/Random/teams.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/teams.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 teams_terms.append(i)
-        with open('src/Support-Files/Random/phones.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/phones.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 iphone_terms.append(i)
-        with open('src/Support-Files/Random/prefixes.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/prefixes.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 prefix_terms.append(i)
-        with open('src/Support-Files/Random/cities.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/cities.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 cities_terms.append(i)
-        with open('src/Support-Files/Random/airport_Names.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/airport_Names.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
                 airport_name_terms.append(i)
-        with open('src/Support-Files/Random/airport_Codes.txt', 'r', encoding='UTF-8') as f:
+        with open('Dictionaries/airport_Codes.txt', 'r', encoding='UTF-8') as f:
             lines = f.readlines()
             for i in lines:
                 i = sub('\n', '', i)
@@ -431,15 +433,17 @@ class Microsoft_Rewards_Automation():
         mobile_Agents = ['Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1']
         edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
+        
+        headless = True
         if mobile == True:
             device = 'mobile'
-            chrome = chrome_Instances(choice(mobile_Agents))
+            chrome = chrome_Instances(choice(mobile_Agents), headless=headless)
         if edge == True:
             device = 'edge'
-            chrome = chrome_Instances(choice(edge_Agents))
+            chrome = chrome_Instances(choice(edge_Agents), headless=headless)
         if edge != True and mobile != True:
             device = 'desktop'
-            chrome = chrome_Instances(choice(desktop_Agents))
+            chrome = chrome_Instances(choice(desktop_Agents), headless=headless)
         bot = chrome.get_Browser()
         
         def action_wait_to_load(xpath):
@@ -482,15 +486,31 @@ class Microsoft_Rewards_Automation():
                 x = laction_wait(f"//input[@type='button']")
                 if x: break
                 if x != True: send_click(f"//input[@type='button']")
+            for _ in range(2):
+                x = laction_wait(f'/html/body/div[5]/div[2]/button')
+                if x: break
+                if x != True: send_click(f'/html/body/div[5]/div[2]/button')
         
-        def search():
+        def search(username): 
             for term in searches:
                 bot.get(f"https://www.bing.com/search?q="+term)
+                bot.implicitly_wait(1)
                 action_wait_to_go(f'//*[@id="sb_form_q"]')
-                sleep(3)
-
+                bot.implicitly_wait(1)
+                html = bot.find_element_by_tag_name('html')
+                for _ in range(1):
+                    try:
+                        html.send_keys(Keys.END)
+                        sleep(1)
+                        html.send_keys(Keys.HOME)
+                        sleep(1)
+                    except (StaleElementReferenceException, ElementNotInteractableException):
+                        sleep(3)
+            print(f'{username} {device} {iter} Finished searches')
+        
+        print(f'Starting Searches {username} {device} {iter}')
         signin()
-        search() 
+        search(username) 
     # Search
 
     # Daily Challenges
@@ -592,20 +612,16 @@ class Microsoft_Rewards_Automation():
                 x = laction_wait(f'/html/body/div[5]/div[2]/button')
                 if x: break
                 if x != True: send_click(f'/html/body/div[5]/div[2]/button')
-            bot.refresh()
         
         # Different Task Operations
         def task_Explore():
             try:
-                # select html to send commands to
                 html = bot.find_element_by_tag_name('html')
-                # scroll up and down to trigger points
                 for i in range(2):
                     html.send_keys(Keys.END)
                     sleep(0.75)
                     html.send_keys(Keys.HOME)
                     sleep(0.75)
-                # exit to main window
                 close_Window()
                 switch_back()
             except TimeoutException:
@@ -670,45 +686,48 @@ class Microsoft_Rewards_Automation():
 
         def task_Click():
             while True:
-                if find_css('span[class="rw_icon"]'):
-                    break
-                if find_css('.cico.btCloseBack'):
-                    find_css('.cico.btCloseBack')[0].click()[0].click()
-                    print('Quiz popped up during a click quiz...')
-                
-                choices = find_class('wk_Circle')
-                # click answer
-                if choices:
-                    choice(choices).click()
+                try:
+                    if find_css('span[class="rw_icon"]'):
+                        break
+                    if find_css('.cico.btCloseBack'):
+                        find_css('.cico.btCloseBack')[0].click()[0].click()
+                        print('Quiz popped up during a click quiz...')
+                    
+                    choices = find_class('wk_Circle')
+                    # click answer
+                    if choices:
+                        choice(choices).click()
+                        sleep(3)
+                    # click the 'next question' button
+                    # wait_until_clickable(By.ID, 'check', 10)
+                    if find_css('span[class="rw_icon"]'):
+                        break
+                    wait_until_clickable(By.CLASS_NAME, 'wk_button', 10)
+                    # click_by_id('check')
+                    click_class('wk_button')
+                    # if the green check mark reward icon is visible, end loop
                     sleep(3)
-                # click the 'next question' button
-                # wait_until_clickable(By.ID, 'check', 10)
-                if find_css('span[class="rw_icon"]'):
-                    break
-                wait_until_clickable(By.CLASS_NAME, 'wk_button', 10)
-                # click_by_id('check')
-                click_class('wk_button')
-                # if the green check mark reward icon is visible, end loop
-                sleep(3)
-                if find_css('span[class="rw_icon"]'):
+                    if find_css('span[class="rw_icon"]'):
+                        break
+                except:
                     break
             close_Window()
             switch_back()
         # Different Task Operations
 
-        def test_Sign_In(dailies, x):
+        def test_Sign_In(dailies, number):
             sign_in_msg = find_class('simpleSignIn')
             if sign_in_msg:
                 if self.max_signin_retries < self.signin_retries:
-                    print(f"Could not complete sign in: retried to many times. Activity: {dailies[x]}")
+                    print(f"Could not complete sign in: retried to many times. Activity: {dailies[number]}")
                 else:
                     close_Window()
                     switch_back()
                     self.signin_retries += 1
-                    dailies[x].click()
+                    dailies[number].click()
                     switch_to()
                     sleep(5)
-                    test_Sign_In()
+                    test_Sign_In(dailies, number)
 
         def close_Window():
             if bot.title == 'Rewards Dashboard':
@@ -718,13 +737,13 @@ class Microsoft_Rewards_Automation():
 
         def task_Function():
             dailies = bot.find_elements_by_xpath('//span[contains(@class, "mee-icon-AddMedium")]')
-            x = -1
+            number = -1
             for link in dailies:
-                x += 1
+                number += 1
                 link.click()
                 switch_to()
                 sleep(5)
-                test_Sign_In(dailies, x)
+                test_Sign_In(dailies, number)
                 if find_id('btoption0'):
                     print('Daily Poll Found')
                     task_Poll()
@@ -763,7 +782,7 @@ class Microsoft_Rewards_Automation():
     def stat_Handler(self, username, password, position, queue):
         """
             Position is either 1 or 0. 0 Being that it is the count before and 1 being the count after
-            Returns: level, profile_points, pc_points, mobile_points, quiz_points, position
+            Returns: username, level, profile_points, pc_points, mobile_points, quiz_points, position
         """
         def action_wait_to_load(xpath):
             try:
@@ -916,12 +935,26 @@ class Microsoft_Rewards_Automation():
             while not queue.empty():
                 self.stats.append(queue.get())
         
+        def stat_Splitter():
+            for i in range(len(self.stats)):
+                username = self.stats[i][0]
+                level = self.stats[i][1]
+                points = self.stats[i][2]
+                pc_Points = self.stats[i][3]
+                mobile_Points = self.stats[i][4]
+                quiz_Points = self.stats[i][5]
+                position = self.stats[i][6]
+                x = (username, level, points, pc_Points, mobile_Points, quiz_Points)
+                if position == 0:
+                    before_Stats[i].append(x)
+                elif position == 1:
+                    after_Stats[i].append(x)
+
         def searches():
-            # Main
+            # Searches
             search_data, processes = [],[]
             for w in range(self.accounts_Using):
                 x = w + 1
-                self.stat_Generator(self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'])
                 for y in range(self.search_clients):
                     rang = y + 1  
                     if rang != 4 or rang != 5 : # Desktop
@@ -939,8 +972,6 @@ class Microsoft_Rewards_Automation():
                 item.join()
 
         def dailies():
-            # Count Points
-
             # Daily Challenges
             daily_data,processes = [], []
             for w in range(self.accounts_Using):
@@ -954,17 +985,35 @@ class Microsoft_Rewards_Automation():
                 processes.append(y)
             for item in processes:
                 item.join()
-            
-        # queue = Queue()
-        # stats(0, queue)
-        # for i in range(len(self.stats)):
-            # print(f'Account: {self.stats[i][0]}')
-            # print(f'Points: {self.stats[i][2]}')
-            # print(f'Level: {self.stats[i][1]}')
+
+        def webhook_Sender(username, complete_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, point_Stats):
+            webhook = DiscordWebhook(url=self.json_File['General Config'][0]['Discord_Webhook_URL'])
+            embed = DiscordEmbed(title="Microsoft Rewards Automation", description=f"**Account:** *{username}*", color='ffffff')
+            embed.add_embed_field(name="**Completed:**", value=F"{complete_Stats}", inline=True)
+            embed.add_embed_field(name="**Searches:**", value=F"{search_Stats}", inline=True)
+            embed.add_embed_field(name="**Daily Challenges:**", value=F"{daily_Challenge_Stats}", inline=True)
+            embed.add_embed_field(name="**Search Term Generaton:**", value=F"{search_Gen_Stats}", inline=True)
+            embed.add_embed_field(name="**Data & File Management:**", value=F"{data_File_Manag_Stats}", inline=True)
+            embed.add_embed_field(name="**Current Points:**", value=F"{point_Stats}", inline=True)
+            embed.set_footer(text="Status Update")
+            embed.set_timestamp()
+            webhook.add_embed(embed)
+            response = webhook.execute() 
+
+        queue = Queue()
+        before_Stats = []
+        after_Stats = []
+        stats(0, queue)      
         if Searches: searches()
         if Dailies: dailies()
-        # stats(1, queue)
-    
+        stats(1, queue)
+        stat_Splitter()
+        [['mychildone11@outlook.com'], ['jooklyscash@outlook.com'], ['epicgamersawesome@outlook.com'], ['jooklyscash1@outlook.com'], ['jooklyscash3@outlook.com'], ['joemaster333@outlook.com']]
+        for x in before_Stats:
+            for y in after_Stats:
+                if x[0] == y[0]:
+                    pass
+
     # Logging, Debug and Output
     def notification_Center(self):
         # Point Counter
@@ -972,17 +1021,14 @@ class Microsoft_Rewards_Automation():
 
         # Notification sender ((Discord Webhook, Email) Each includes - (Picture, Points, Status of account))
         status = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
-        def webhook_Sender(username, complete_Stats, general_Stats, sign_In_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, time_Stats, point_Stats):
+        def webhook_Sender(username, complete_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, point_Stats):
             webhook = DiscordWebhook(url=self.json_File['General Config'][0]['Discord_Webhook_URL'])
             embed = DiscordEmbed(title="Microsoft Rewards Automation", description=f"**Account:** *{username}*", color='ffffff')
             embed.add_embed_field(name="**Completed:**", value=F"{complete_Stats}", inline=True)
-            embed.add_embed_field(name="**General Status:**", value=F"{general_Stats}", inline=True)
-            embed.add_embed_field(name="**Sign in:**", value=F"{sign_In_Stats}", inline=True)
             embed.add_embed_field(name="**Searches:**", value=F"{search_Stats}", inline=True)
             embed.add_embed_field(name="**Daily Challenges:**", value=F"{daily_Challenge_Stats}", inline=True)
             embed.add_embed_field(name="**Search Term Generaton:**", value=F"{search_Gen_Stats}", inline=True)
             embed.add_embed_field(name="**Data & File Management:**", value=F"{data_File_Manag_Stats}", inline=True)
-            embed.add_embed_field(name="**Completed task in set time:**", value=F"{time_Stats}", inline=True)
             embed.add_embed_field(name="**Current Points:**", value=F"{point_Stats}", inline=True)
             embed.set_footer(text="Status Update")
             embed.set_timestamp()
@@ -991,4 +1037,4 @@ class Microsoft_Rewards_Automation():
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
-    MSRA.processor(Searches = False, Dailies = True)
+    MSRA.processor(Searches = True, Dailies = True)
