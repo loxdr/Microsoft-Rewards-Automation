@@ -1008,7 +1008,6 @@ class Microsoft_Rewards_Automation():
         if Dailies: dailies()
         stats(1, queue)
         stat_Splitter()
-        [['mychildone11@outlook.com'], ['jooklyscash@outlook.com'], ['epicgamersawesome@outlook.com'], ['jooklyscash1@outlook.com'], ['jooklyscash3@outlook.com'], ['joemaster333@outlook.com']]
         for x in before_Stats:
             for y in after_Stats:
                 if x[0] == y[0]:
