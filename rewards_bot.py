@@ -76,10 +76,11 @@ class Microsoft_Rewards_Automation():
         self.accounts_Using = 0
         self.search_clients = 5
         self.daily_clients = 1
-        self.max_retries = 3
+        self.max_retries = 2
         self.retries = 0
         self.max_signin_retries = 3
         self.signin_retries = 0
+        self.headless = True
         self.webhook_Emoji = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
         self.platform_Checker()
         self.chrome_Management()
@@ -429,21 +430,19 @@ class Microsoft_Rewards_Automation():
             if instance == 3:
                 return split_Terms[40:60]
         
-    def search_Handler(self, username, password, searches, set, iter, mobile = False, edge = False):
+    def search_Handler(self, username, password, searches, set, iter, mobile = False, edge = False, headless = True):
         mobile_Agents = ['Mozilla/5.0 (iPhone; CPU iPhone OS 15_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1']
         edge_Agents = ['Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136']
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
-        
-        headless = True
         if mobile == True:
             device = 'mobile'
-            chrome = chrome_Instances(choice(mobile_Agents), headless=headless)
+            chrome = chrome_Instances(choice(mobile_Agents), headless)
         if edge == True:
             device = 'edge'
-            chrome = chrome_Instances(choice(edge_Agents), headless=headless)
-        if edge != True and mobile != True:
+            chrome = chrome_Instances(choice(edge_Agents), headless)
+        if edge != True and mobile != True: 
             device = 'desktop'
-            chrome = chrome_Instances(choice(desktop_Agents), headless=headless)
+            chrome = chrome_Instances(choice(desktop_Agents), headless)
         bot = chrome.get_Browser()
         
         def action_wait_to_load(xpath):
@@ -506,17 +505,17 @@ class Microsoft_Rewards_Automation():
                         sleep(1)
                     except (StaleElementReferenceException, ElementNotInteractableException):
                         sleep(3)
-            print(f'{username} {device} {iter} Finished searches')
+            # print(f'{username} {device} {iter} Finished searches')
         
-        print(f'Starting Searches {username} {device} {iter}')
+        # print(f'Starting Searches {username} {device} {iter}')
         signin()
         search(username) 
     # Search
 
     # Daily Challenges
-    def dailies_Handler(self, username, password, set, iter):
+    def dailies_Handler(self, username, password, set, iter, headless = True):
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
-        chrome = chrome_Instances(choice(desktop_Agents))
+        chrome = chrome_Instances(choice(desktop_Agents), headless)
         bot = chrome.get_Browser()
         
         def action_wait_to_load(xpath):
@@ -779,7 +778,7 @@ class Microsoft_Rewards_Automation():
     # Daily Challenges
 
     # Stat Generator
-    def stat_Handler(self, username, password, position, queue):
+    def stat_Handler(self, username, password, position, queue, headless = True):
         """
             Position is either 1 or 0. 0 Being that it is the count before and 1 being the count after
             Returns: username, level, profile_points, pc_points, mobile_points, quiz_points, position
@@ -838,14 +837,16 @@ class Microsoft_Rewards_Automation():
 
         def get_user_lvl(json):
             if json['userStatus']['levelInfo']['levels'][0]['active'] == True:
-                print('   User is Level 1')
+                # print('   User is Level 1')
+                pass
                 return 1
             else:
                 return 2
 
         def get_pts_lvl(json):
             if 'userStatus' not in json:
-                print('   Cannot find key "userStatus"')
+                # print('   Cannot find key "userStatus"')
+                pass
                 return
             current_pts_lvl = json['userStatus']
             current_pts_lvl = int(current_pts_lvl['availablePoints'])
@@ -854,22 +855,27 @@ class Microsoft_Rewards_Automation():
         
         def get_pts_pc(json):
             if 'pcSearch' not in json['userStatus']['counters']:
-                print('   Cannot find daily point levels: PC Search')
+                # print('   Cannot find daily point levels: PC Search')
+                pass
             pc_search = json['userStatus']['counters']['pcSearch'][0]
             pc_points = pc_search['pointProgress']
             pc_max_points = pc_search['pointProgressMax']
             pc_search = f'{str(pc_points)} / {str(pc_max_points)}'
             if pc_max_points == pc_points:
-                print(f'   Bot has generated max search points for today: {pc_search}')
+                # print(f'   Bot has generated max search points for today: {pc_search}')
+                pass
             else:
-                print(f'   Current search points level: {str(pc_search)}')
+                # print(f'   Current search points level: {str(pc_search)}')
+                pass
             return pc_search
 
         def get_pts_quiz(json):
             if 'dailySetPromotions' not in json:
-                print("   Cannot find daily point levels: Daily Quiz")
+                # print("   Cannot find daily point levels: Daily Quiz")
+                pass
             if 'morePromotions' not in json:
-                print("   Cannot find daily point levels: More Quiz")
+                # print("   Cannot find daily point levels: More Quiz")
+                pass
             today = f'{datetime.now():%m/%d/%Y}'
             quiz_points = 0
             quiz_max_points = 0
@@ -881,29 +887,33 @@ class Microsoft_Rewards_Automation():
                 quiz_max_points += int(daily['pointProgressMax'])
             quiz = f'{str(quiz_points)} / {str(quiz_max_points)}'
             if quiz_points == quiz_max_points:
-                print(f'   Bot has generated max quiz points for today: {quiz}')
+                # print(f'   Bot has generated max quiz points for today: {quiz}')
+                pass
             else:
-                print(f'   Current quiz points level: {str(quiz)}')
+                # print(f'   Current quiz points level: {str(quiz)}')
+                pass
             return quiz
             
         def get_pts_mobile(json):
             if 'mobileSearch' not in json['userStatus']['counters']:
-                print('   No mobile points as account is level 1')
+                # print('   No mobile points as account is level 1')
                 return 'N/A'
             mbs = json['userStatus']['counters']['mobileSearch'][0]
             mobile_search_progress = int(mbs['pointProgress'])
             mobile_search_max = int(mbs['pointProgressMax'])
             mobile_search = f'{str(mobile_search_progress)} / {str(mobile_search_max)}'
             if mobile_search == mobile_search_max:
-                print(f'   Bot has generated max mobile search points for today: {mobile_search}')
+                # print(f'   Bot has generated max mobile search points for today: {mobile_search}')
+                pass
             else:
-                print(f'   Current mobile search points level: {str(mobile_search)}')
+                # print(f'   Current mobile search points level: {str(mobile_search)}')
+                pass
             return mobile_search   
         # Stat Generation
 
         print(f"Generating point levels: {username}")
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
-        chrome = chrome_Instances(choice(desktop_Agents), headless=True)
+        chrome = chrome_Instances(choice(desktop_Agents), headless)
         bot = chrome.get_Browser()
         sign_In()
 
@@ -924,7 +934,7 @@ class Microsoft_Rewards_Automation():
         def stats(position, queue):
             temp_data, processes = [], []
             for w in range(self.accounts_Using):
-                x = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], position, queue)
+                x = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], position, queue, self.headless)
                 temp_data.append(x)
             for data in temp_data:
                 y = Process(target=self.stat_Handler,args=data)
@@ -936,6 +946,9 @@ class Microsoft_Rewards_Automation():
                 self.stats.append(queue.get())
         
         def stat_Splitter():
+            """
+            Returns: username, level, profile_points, pc_points, mobile_points, quiz_points, position
+            """
             for i in range(len(self.stats)):
                 username = self.stats[i][0]
                 level = self.stats[i][1]
@@ -944,10 +957,14 @@ class Microsoft_Rewards_Automation():
                 mobile_Points = self.stats[i][4]
                 quiz_Points = self.stats[i][5]
                 position = self.stats[i][6]
-                x = (username, level, points, pc_Points, mobile_Points, quiz_Points)
+                x = [username, level, points, pc_Points, mobile_Points, quiz_Points]
                 if position == 0:
+                    Lol = []
+                    before_Stats.append(Lol)
                     before_Stats[i].append(x)
                 elif position == 1:
+                    Lol = []
+                    after_Stats.append(Lol)
                     after_Stats[i].append(x)
 
         def searches():
@@ -955,17 +972,18 @@ class Microsoft_Rewards_Automation():
             search_data, processes = [],[]
             for w in range(self.accounts_Using):
                 x = w + 1
+                print(f"Starting Searching For {self.json_File['MS Rewards Accounts'][w]['Email']}")
                 for y in range(self.search_clients):
                     rang = y + 1  
                     if rang != 4 or rang != 5 : # Desktop
-                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang), x, rang, False)    
+                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang), x, rang, False, False, self.headless)    
                     if rang == 4: # Mobile
-                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, True)
+                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, True, False, self.headless)
                     if rang == 5: # Edge
-                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, False, True)
+                        temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], self.sts(x,rang, mobile=True), x, rang, False, True, self.headless)
                     search_data.append(temp)
             for tuple in search_data:
-                y = Process(target=self.search_Handler,args=tuple)
+                y = Process(target=self.search_Handler, args=tuple)
                 y.start()
                 processes.append(y)
             for item in processes:
@@ -975,9 +993,10 @@ class Microsoft_Rewards_Automation():
             # Daily Challenges
             daily_data,processes = [], []
             for w in range(self.accounts_Using):
+                print(f"Starting Dailies For {self.json_File['MS Rewards Accounts'][w]['Email']}")
                 for y in range(self.daily_clients):
                     rang = y + 1  
-                    temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], w, rang)
+                    temp = (self.json_File['MS Rewards Accounts'][w]['Email'], self.json_File['MS Rewards Accounts'][w]['Password'], w, rang, self.headless)
                     daily_data.append(temp)
             for tuple in daily_data:
                 y = Process(target=self.dailies_Handler,args=tuple)
@@ -986,53 +1005,39 @@ class Microsoft_Rewards_Automation():
             for item in processes:
                 item.join()
 
-        def webhook_Sender(username, complete_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, point_Stats):
+        def webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, point_Stats):
             webhook = DiscordWebhook(url=self.json_File['General Config'][0]['Discord_Webhook_URL'])
-            embed = DiscordEmbed(title="Microsoft Rewards Automation", description=f"**Account:** *{username}*", color='ffffff')
+            embed = DiscordEmbed(title=f"Account: {username}", description="", color='80b454')
             embed.add_embed_field(name="**Completed:**", value=F"{complete_Stats}", inline=True)
-            embed.add_embed_field(name="**Searches:**", value=F"{search_Stats}", inline=True)
+            embed.add_embed_field(name="**Searches - PC:**", value=F"{search_Stats_PC}", inline=True)
+            embed.add_embed_field(name="**Searches - Mobile:**", value=F"{search_Stats_Mobile}", inline=True)
             embed.add_embed_field(name="**Daily Challenges:**", value=F"{daily_Challenge_Stats}", inline=True)
-            embed.add_embed_field(name="**Search Term Generaton:**", value=F"{search_Gen_Stats}", inline=True)
-            embed.add_embed_field(name="**Data & File Management:**", value=F"{data_File_Manag_Stats}", inline=True)
+            embed.add_embed_field(name="**Level:**", value=F"{level}", inline=True)
             embed.add_embed_field(name="**Current Points:**", value=F"{point_Stats}", inline=True)
             embed.set_footer(text="Status Update")
             embed.set_timestamp()
             webhook.add_embed(embed)
-            response = webhook.execute() 
+            webhook.execute()
 
         queue = Queue()
         before_Stats = []
         after_Stats = []
-        stats(0, queue)      
+        stats(0, queue)
+        self.stats = []
         if Searches: searches()
         if Dailies: dailies()
         stats(1, queue)
         stat_Splitter()
-        for x in before_Stats:
-            for y in after_Stats:
-                if x[0] == y[0]:
-                    pass
-
-    # Logging, Debug and Output
-    def notification_Center(self):
-        # Point Counter
-        points = 12312
-
-        # Notification sender ((Discord Webhook, Email) Each includes - (Picture, Points, Status of account))
-        status = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
-        def webhook_Sender(username, complete_Stats, search_Stats, daily_Challenge_Stats, search_Gen_Stats, data_File_Manag_Stats, point_Stats):
-            webhook = DiscordWebhook(url=self.json_File['General Config'][0]['Discord_Webhook_URL'])
-            embed = DiscordEmbed(title="Microsoft Rewards Automation", description=f"**Account:** *{username}*", color='ffffff')
-            embed.add_embed_field(name="**Completed:**", value=F"{complete_Stats}", inline=True)
-            embed.add_embed_field(name="**Searches:**", value=F"{search_Stats}", inline=True)
-            embed.add_embed_field(name="**Daily Challenges:**", value=F"{daily_Challenge_Stats}", inline=True)
-            embed.add_embed_field(name="**Search Term Generaton:**", value=F"{search_Gen_Stats}", inline=True)
-            embed.add_embed_field(name="**Data & File Management:**", value=F"{data_File_Manag_Stats}", inline=True)
-            embed.add_embed_field(name="**Current Points:**", value=F"{point_Stats}", inline=True)
-            embed.set_footer(text="Status Update")
-            embed.set_timestamp()
-            webhook.add_embed(embed)
-            response = webhook.execute()
+        for i in after_Stats:
+            username = i[0][0]
+            complete_Stats = self.webhook_Emoji[0]
+            level = i[0][1]
+            daily_Challenge_Stats = i[0][5]
+            search_Stats_PC = i[0][3]
+            search_Stats_Mobile = i[0][4]
+            points = i[0][2]
+            webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
+            sleep(2)
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
