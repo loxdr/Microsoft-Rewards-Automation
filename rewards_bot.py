@@ -1020,26 +1020,25 @@ class Microsoft_Rewards_Automation():
             webhook.add_embed(embed)
             webhook.execute()
 
-        # queue = Queue()
-        # before_Stats = []
-        # after_Stats = []
-        # stats(0, queue)
-        # self.stats = []
-        # if Searches: searches()
-        # if Dailies: dailies()
-        dailies()
-        # stats(1, queue)
-        # stat_Splitter()
-        # for i in after_Stats:
-        #     username = i[0][0]
-        #     complete_Stats = self.webhook_Emoji[0]
-        #     level = i[0][1]
-        #     daily_Challenge_Stats = i[0][5]
-        #     search_Stats_PC = i[0][3]
-        #     search_Stats_Mobile = i[0][4]
-        #     points = i[0][2]
-        #     webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
-        #     sleep(2)
+        queue = Queue()
+        before_Stats = []
+        after_Stats = []
+        stats(0, queue)
+        self.stats = []
+        if Searches: searches()
+        if Dailies: dailies()
+        stats(1, queue)
+        stat_Splitter()
+        for i in after_Stats:
+            username = i[0][0]
+            complete_Stats = self.webhook_Emoji[0]
+            level = i[0][1]
+            daily_Challenge_Stats = i[0][5]
+            search_Stats_PC = i[0][3]
+            search_Stats_Mobile = i[0][4]
+            points = i[0][2]
+            webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
+            sleep(2)
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
