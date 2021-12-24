@@ -80,7 +80,7 @@ class Microsoft_Rewards_Automation():
         self.retries = 0
         self.max_signin_retries = 3
         self.signin_retries = 0
-        self.headless = True
+        self.headless = False
         self.webhook_Emoji = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
         self.platform_Checker()
         self.chrome_Management()
@@ -492,6 +492,7 @@ class Microsoft_Rewards_Automation():
         
         def search(username): 
             for term in searches:
+                # print(f'{username} searching with term: {term}')
                 bot.get(f"https://www.bing.com/search?q="+term)
                 bot.implicitly_wait(1)
                 action_wait_to_go(f'//*[@id="sb_form_q"]')
@@ -563,6 +564,7 @@ class Microsoft_Rewards_Automation():
                 WebDriverWait(bot, time_to_wait).until(EC.element_to_be_clickable((by_, selector)))
             except (TimeoutException, UnexpectedAlertPresentException):
                 print(f'{selector} element Not clickable - Timeout Exception')
+                raise
             except WebDriverException:
                 print(f'Webdriver Error for {selector} object')
                 bot.refresh()
@@ -699,8 +701,7 @@ class Microsoft_Rewards_Automation():
                         sleep(3)
                     # click the 'next question' button
                     # wait_until_clickable(By.ID, 'check', 10)
-                    if find_css('span[class="rw_icon"]'):
-                        break
+                
                     wait_until_clickable(By.CLASS_NAME, 'wk_button', 10)
                     # click_by_id('check')
                     click_class('wk_button')
@@ -850,7 +851,7 @@ class Microsoft_Rewards_Automation():
                 return
             current_pts_lvl = json['userStatus']
             current_pts_lvl = int(current_pts_lvl['availablePoints'])
-            print(f'   Current points level: {str(current_pts_lvl)}')
+            # print(f'   Current points level: {str(current_pts_lvl)}')
             return current_pts_lvl
         
         def get_pts_pc(json):
@@ -1019,25 +1020,26 @@ class Microsoft_Rewards_Automation():
             webhook.add_embed(embed)
             webhook.execute()
 
-        queue = Queue()
-        before_Stats = []
-        after_Stats = []
-        stats(0, queue)
-        self.stats = []
-        if Searches: searches()
-        if Dailies: dailies()
-        stats(1, queue)
-        stat_Splitter()
-        for i in after_Stats:
-            username = i[0][0]
-            complete_Stats = self.webhook_Emoji[0]
-            level = i[0][1]
-            daily_Challenge_Stats = i[0][5]
-            search_Stats_PC = i[0][3]
-            search_Stats_Mobile = i[0][4]
-            points = i[0][2]
-            webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
-            sleep(2)
+        # queue = Queue()
+        # before_Stats = []
+        # after_Stats = []
+        # stats(0, queue)
+        # self.stats = []
+        # if Searches: searches()
+        # if Dailies: dailies()
+        dailies()
+        # stats(1, queue)
+        # stat_Splitter()
+        # for i in after_Stats:
+        #     username = i[0][0]
+        #     complete_Stats = self.webhook_Emoji[0]
+        #     level = i[0][1]
+        #     daily_Challenge_Stats = i[0][5]
+        #     search_Stats_PC = i[0][3]
+        #     search_Stats_Mobile = i[0][4]
+        #     points = i[0][2]
+        #     webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
+        #     sleep(2)
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
