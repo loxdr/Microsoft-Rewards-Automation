@@ -80,7 +80,7 @@ class Microsoft_Rewards_Automation():
         self.retries = 0
         self.max_signin_retries = 3
         self.signin_retries = 0
-        self.headless = False
+        self.headless = True
         self.webhook_Emoji = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
         self.platform_Checker()
         self.chrome_Management()
@@ -117,6 +117,7 @@ class Microsoft_Rewards_Automation():
             print("  2c) Make sure to include commas in the correct areas")
             sleep(1)
             print("  3) Relaunch this program")
+            sleep(10)
             exit()
         print("Checking if data.json exists")
         if isfile('data.json') != True:
@@ -132,6 +133,28 @@ class Microsoft_Rewards_Automation():
                         "General Config":[
                             {"Discord_Webhook_URL": ""}]}
                     dump(template, f, indent=4)
+                with open('LICENCE', 'w') as f:
+                    f.write('''MIT License
+Copyright (c) 2021 loxdr
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.'''
+)
             except PermissionError:
                 print("Unable to create file: Dont have required permissions")
                 exit()
@@ -421,7 +444,7 @@ class Microsoft_Rewards_Automation():
         ct_Start = ct_End - ct_Allocation
         split_Terms = list(self.search_Terms)[int(ct_Start):int(ct_End)]
         if mobile == True:
-            return split_Terms[60:85]
+            return split_Terms[60:90]
         if mobile != True:
             if instance == 1:
                 return split_Terms[0:20]
@@ -514,7 +537,7 @@ class Microsoft_Rewards_Automation():
     # Search
 
     # Daily Challenges
-    def dailies_Handler(self, username, password, set, iter, headless = True):
+    def dailies_Handler(self, username, password, set, iter, headless = False):
         desktop_Agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 12_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36']
         chrome = chrome_Instances(choice(desktop_Agents), headless)
         bot = chrome.get_Browser()
@@ -931,7 +954,7 @@ class Microsoft_Rewards_Automation():
     # Stat Generator
 
     # Main Function
-    def processor(self, Searches = True, Dailies = True):
+    def processor(self, Searches = True, Dailies = True, Stats=False):
         def stats(position, queue):
             temp_data, processes = [], []
             for w in range(self.accounts_Using):
@@ -1037,9 +1060,13 @@ class Microsoft_Rewards_Automation():
             search_Stats_PC = i[0][3]
             search_Stats_Mobile = i[0][4]
             points = i[0][2]
-            webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
-            sleep(2)
+            if Stats: 
+                webhook_Sender(username, complete_Stats, level, daily_Challenge_Stats, search_Stats_Mobile, search_Stats_PC, points)
+                sleep(2)
 
 if __name__ == '__main__':
     MSRA = Microsoft_Rewards_Automation()
-    MSRA.processor(Searches = True, Dailies = True)
+    MSRA.processor(Searches = True, Dailies = True, Stats=False)
+
+    MSRA2 = Microsoft_Rewards_Automation()
+    MSRA2.processor(Searches=True, Dailies=True, Stats=True)
