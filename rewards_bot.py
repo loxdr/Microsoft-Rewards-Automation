@@ -26,7 +26,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from Support_Files.driver_update import download_driver
 from Support_Files.send_email import send_email
 
 
@@ -83,7 +82,6 @@ class Microsoft_Rewards_Automation():
         self.headless = True
         self.webhook_Emoji = ['<:greencheck:854879476693467136>', '<:redcross:854879487129157642>']
         self.platform_Checker()
-        self.chrome_Management()
         self.search_Term_Generation()
         self.data_Management()
 
@@ -131,7 +129,8 @@ class Microsoft_Rewards_Automation():
                             {"Email": "email@example.com", "Password": "example"},
                             {"Email": "email@example.com", "Password": "example"}],
                         "General Config":[
-                            {"Discord_Webhook_URL": ""}]}
+                            {"Discord_Webhook_URL": ""},
+                            {"Email_Username": "", "Email_Password": ""}]}
                     dump(template, f, indent=4)
                 with open('LICENCE', 'w') as f:
                     f.write('''MIT License
@@ -199,40 +198,6 @@ SOFTWARE.'''
         print(f'MSRA Ready: Using {len(self.json_File["MS Rewards Accounts"])} account (s)')
         for i in self.json_File['MS Rewards Accounts']: print(i['Email'])
     
-    def chrome_Management(self):
-        """
-            Deletes all Chromedriver files and Reinstalls latest version
-        """
-        print('Attempting to delete Chromedriver')
-        try: 
-            rmtree('Chromedriver')
-            print('Deleted Chromedriver')
-        except OSError:
-            pass
-        except: 
-            print('Failed Deleting Chromedriver, check permissions or anti-virus')
-            exit()
-        print('Rebuilding Chromedriver Directory')
-        try:
-            mkdir('Chromedriver')
-            print('Rebuilt Chromedriver Directory')
-        except:
-            print('Failed Creating Chromedriver Directory, check permissions or anti-virus')
-            exit()
-        print('Reinstalling latest version of Chromedriver')
-        if self.os == "Linux":
-            res = download_driver(r'Chromedriver/chromedriver', self.os)
-        if self.os == "Mac":
-            res = download_driver(r'Chromedriver/chromedriver', self.os)
-        if self.os == "Windows":
-            res = download_driver(r'Chromedriver\chromedriver.exe', self.os)
-        if res[0]:
-            print('Succesfully reinstalled Chromedriver')
-            print(f'Using version {res[1]} of Chromedriver')
-            self.chromedriver_Version = res[1]
-        else:
-            print("Failed installing Chromedriver, check permissions or anti-virus")
-    # Program Init
          
     # Search              
     def search_Term_Generation(self):
