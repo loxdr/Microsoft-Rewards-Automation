@@ -17,7 +17,6 @@ points for bing rewards
 - Run 5 accounts to earn 5x the points
 - Generate random searches from google's Google Trends API
 - Complete daily puzzles, tasks and extras
-- Open source <3
 
 > Work in progress so things may not work
 > in the begining, but they soon will as
